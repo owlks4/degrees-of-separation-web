@@ -1,1 +1,3 @@
 A relationship web program that uses Dijkstra to find the degrees of separation between any two people in the web.
+
+At the moment, it's text-based, but in the future, I hope to give it a spider diagram-esque display.
