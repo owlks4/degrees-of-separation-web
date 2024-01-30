@@ -1,0 +1,17 @@
+{
+  "name": "degrees-of-separation-web",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "homepage": "https://owlks4.github.io/",
+  "scripts": {
+    "dev": "vite",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.0.8"
+  }
+}
