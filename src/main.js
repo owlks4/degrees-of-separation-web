@@ -1,12 +1,59 @@
 import './style.css'
-import javascriptLogo from './javascript.svg'
-import viteLogo from '/vite.svg'
-import majora from './public/majora.json'
+import majora from './majora.json'
 
 let people = [];
 let mostRecentlyAssignedID = 0;
-
 let currentFocalPerson = null;
+let spiderDiagramAvoidPeople = [];
+
+let canvas = document.getElementById("canvas");
+
+let ctx = canvas.getContext("2d");
+ctx.canvas.width  = window.innerWidth;
+ctx.canvas.height = window.innerHeight;
+let canvasPanX = -window.innerWidth/7;
+let canvasPanY = -window.innerHeight/14;
+
+document.addEventListener('keyup', (e) => {
+  let change = 20;
+ switch (e.key){
+    case "w":
+        canvasPanY += change;
+        updateHTML();
+    break;
+    case "s":
+        canvasPanY -= change;
+        updateHTML();
+    break;
+    case "a":
+        canvasPanX += change;
+        updateHTML();
+    break;
+    case "d":
+        canvasPanX -= 20;
+        updateHTML();
+    break;
+  }
+});
+
+let oldMousePos = null;
+
+canvas.addEventListener("mousedown", (e) => {
+  oldMousePos = [e.screenX, e.screenY];  
+});
+
+canvas.addEventListener("mousemove", (e) => {
+  if (oldMousePos != null){
+      canvasPanX += (e.screenX - oldMousePos[0]);
+      canvasPanY += (e.screenY - oldMousePos[1]);
+      oldMousePos = [e.screenX, e.screenY];      
+      updateHTML();
+  }
+});
+
+canvas.addEventListener("mouseup", (e) => {
+  oldMousePos = null;
+});
 
 function setCurrentFocalPerson(p){
   currentFocalPerson = p;
@@ -57,6 +104,117 @@ function updateHTML(){
     app.innerHTML = "";
     app.appendChild(currentFocalPerson.getAnchorTag());
     app.appendChild(currentFocalPerson.getRelationsDiv());
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    currentFocalPerson.positionOnSpiderDiagram = [canvas.width/2, canvas.height/2];
+    currentFocalPerson.drawToCanvas();
+
+    let peopleAlreadyInSpiderDiagram = [currentFocalPerson];
+
+    spiderDiagramAvoidPeople.forEach((avoidPerson) => {
+      peopleAlreadyInSpiderDiagram.push(avoidPerson);
+    });
+
+    addRelationsToSpiderDiagram(currentFocalPerson, peopleAlreadyInSpiderDiagram, 0, 0);
+}
+
+function addRelationsToSpiderDiagram(person, peopleAlreadyInSpiderDiagram, level, dir){
+    level++;
+
+    let relationsToInclude = [];
+
+    person.relations.forEach((relation) => {
+        if (!peopleAlreadyInSpiderDiagram.includes(relation.otherPerson) && relation.otherPerson != person){
+          relationsToInclude.push(relation);
+          peopleAlreadyInSpiderDiagram.push(relation.otherPerson);
+        }
+    });
+
+    if (relationsToInclude.length == 0){
+      return;
+    }
+
+    //generate the angles at which these will splay out from the centre (within a 90 degree arc opening towards the right, and a 90 degree arc opening towards the left)
+    let angles = [];
+
+    let spider_diagram_arm_length = 400;
+
+    let angle_total_space_on_one_side = 90;
+    let curAngle = null;
+    let angleSpacing = null;
+
+    if (relationsToInclude.length > 16) {
+      angle_total_space_on_one_side = 4 * relationsToInclude.length;
+    }
+
+    if (relationsToInclude.length == 1){
+      angles.push(dir == 0 ? 90 : dir);
+    } else if (relationsToInclude.length > 1){
+      if (dir == 0){  //if dir is 0, this is the first node, meaning it has no direction. So splay out on both sides 
+        curAngle = 90 - (angle_total_space_on_one_side/2);
+        angleSpacing = angle_total_space_on_one_side / (relationsToInclude.length / 2); 
+      } else { //but if it does have a direction, splay out only around that direction.
+        curAngle = dir - (angle_total_space_on_one_side/2);
+        angleSpacing = angle_total_space_on_one_side / relationsToInclude.length; 
+      }
+
+      relationsToInclude.forEach(() => {
+          angles.push(curAngle);
+        if (dir == 0) {
+          angles.push(-curAngle)
+        }
+
+        curAngle += angleSpacing;
+      });
+    }
+
+    for (let i = 0; i < relationsToInclude.length; i++) {
+      let relation = relationsToInclude[i];
+      let relationPerson = relation.otherPerson;
+      let angle = deg2rad(angles[i]);
+      let armXLength = (Math.sin(angle) * spider_diagram_arm_length);
+      let armYLength = (Math.cos(angle) * spider_diagram_arm_length);
+      relationPerson.positionOnSpiderDiagram = [person.positionOnSpiderDiagram[0] + armXLength, person.positionOnSpiderDiagram[1] + armYLength];
+      ctx.beginPath(); 
+      ctx.strokeStyle = "rgba(128,128,128,0.3)";
+      ctx.moveTo(canvasPanX + person.positionOnSpiderDiagram[0] + (armXLength/15), canvasPanY + person.positionOnSpiderDiagram[1] + (armYLength/15));
+      ctx.lineTo(canvasPanX + person.positionOnSpiderDiagram[0] + (armXLength * 9/10), canvasPanY + person.positionOnSpiderDiagram[1] + (armYLength * 9/10));
+      ctx.stroke();
+      ctx.font = "12px Arial";
+      ctx.fillStyle = "rgba(255,255,255,0.75)";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.save();
+      ctx.translate((canvasPanX + person.positionOnSpiderDiagram[0] + (armXLength / 2)),(canvasPanY + person.positionOnSpiderDiagram[1] + (armYLength / 2)));
+      
+      while (angle > Math.PI){
+        angle -= (Math.PI * 2);
+      }
+
+      while (angle < -Math.PI){
+        angle += (Math.PI * 2);
+      }
+
+      if (angle >= Math.PI || angle < 0){
+        ctx.rotate(-angle - 1.5708);
+        ctx.fillText(relationPerson.getImmediateRelationshipTextTo(person),0,0);
+      } else {
+        ctx.rotate(-angle + 1.5708);
+        ctx.fillText(relation.description,0,0);
+      }
+
+      ctx.restore();            
+      relationPerson.drawToCanvas();
+    };
+
+    for (let i = 0; i < relationsToInclude.length; i++) {
+      console.log("Hmm... this method of evaluating the tree diagram specifically isn't breadth-first! The normal dijkstra works correctly... but in the case of this tree diagram, it needs to make sure it's unfurled in ascending order of level from the centre...")
+        addRelationsToSpiderDiagram(relationsToInclude[i].otherPerson, peopleAlreadyInSpiderDiagram, level, angles[i]);  
+    }
+}
+
+function deg2rad(deg){
+  return (deg * Math.PI) / 180.0;
 }
 
 function getPerson(name){
@@ -83,6 +241,18 @@ function getPersonById(id){
   return null;
 }
 
+function getPersonWithMostConnections(){
+  let highest = people[0];
+
+  people.forEach((person) => {
+    if (person.relations.length > highest.relations.length){
+      highest = person;
+    }
+  });
+
+  return highest;
+}
+
 function getNextID(){
   return mostRecentlyAssignedID++;
 }
@@ -96,6 +266,7 @@ class Person {
       this.id = getNextID();
       this.name = name;
       this.relations = [];
+      this.positionOnSpiderDiagram = [0,0];
   }
 
   addRelation(otherPerson,description,reverseDescription,createReverseRelationNow){
@@ -136,6 +307,19 @@ class Person {
     });
 
     return text;
+  }
+
+  drawToCanvas(){
+    ctx.beginPath();
+    ctx.arc(canvasPanX + this.positionOnSpiderDiagram[0], canvasPanY + this.positionOnSpiderDiagram[1], 50, 0, 2 * Math.PI);
+    ctx.fillStyle = "black";
+    //ctx.stroke(); 
+    //ctx.fill();
+    ctx.font = "20px Arial";
+    ctx.fillStyle = "white";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(this.name, canvasPanX + this.positionOnSpiderDiagram[0], canvasPanY + this.positionOnSpiderDiagram[1]);
   }
 
   getAsObjectForJSON(){
@@ -343,10 +527,14 @@ getPerson("English Ambassadors").addRelation(getPerson("Guildenstern"),"report t
 
 //loadAllFromJson(majora);
 
+spiderDiagramAvoidPeople = [getPersonWithMostConnections()];
+
 setCurrentFocalPerson(getPersonById(0))
 
+/*
 people.forEach((person) => {
   people.forEach((otherPerson) => {
     console.log(person.getDegreesOfSeparationFrom(otherPerson, []));
   })
 })
+*/
