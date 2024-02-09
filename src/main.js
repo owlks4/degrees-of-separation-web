@@ -57,6 +57,7 @@ canvas.addEventListener("mouseup", (e) => {
 
 function setCurrentFocalPerson(p){
   currentFocalPerson = p;
+  recalculateSpiderDiagram();
   updateHTML();
 }
 
@@ -104,113 +105,135 @@ function updateHTML(){
     app.innerHTML = "";
     app.appendChild(currentFocalPerson.getAnchorTag());
     app.appendChild(currentFocalPerson.getRelationsDiv());
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    currentFocalPerson.positionOnSpiderDiagram = [canvas.width/2, canvas.height/2];
-    currentFocalPerson.drawToCanvas();
-
-    let peopleAlreadyInSpiderDiagram = [currentFocalPerson];
-
-    spiderDiagramAvoidPeople.forEach((avoidPerson) => {
-      peopleAlreadyInSpiderDiagram.push(avoidPerson);
-    });
-
-    addRelationsToSpiderDiagram(currentFocalPerson, peopleAlreadyInSpiderDiagram, 0, 0);
+    globalCanvasRedraw();
 }
 
-function addRelationsToSpiderDiagram(person, peopleAlreadyInSpiderDiagram, level, dir){
-    level++;
+function globalCanvasRedraw(){
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  people.forEach((person) => {
+    person.drawToCanvas();
+  });
+}
 
-    let relationsToInclude = [];
+function recalculateSpiderDiagram(){
 
-    person.relations.forEach((relation) => {
-        if (!peopleAlreadyInSpiderDiagram.includes(relation.otherPerson) && relation.otherPerson != person){
-          relationsToInclude.push(relation);
-          peopleAlreadyInSpiderDiagram.push(relation.otherPerson);
+  let peopleWebContexts = [];
+
+  currentFocalPerson.positionOnSpiderDiagram = [canvas.width/2, canvas.height/2];
+  let maxLevel = -1;
+  
+  let slotsAtEachLevel = {};
+
+  people.forEach((otherPerson) => {
+    let level = currentFocalPerson.getDegreesOfSeparationFrom(otherPerson, []);
+    if (level > maxLevel){
+      maxLevel = level;
+    }
+
+    if (Object.keys(slotsAtEachLevel).includes(level+"")){
+      slotsAtEachLevel[level+""] = slotsAtEachLevel[level+""] + 1;
+    } else {
+      slotsAtEachLevel[level+""] = 1;
+    }
+    
+    let otherPersonAndWebContext = {p:otherPerson, degreesFromFocalPerson: level, isAddedToWeb:false, prevPersonInWeb:null};
+    peopleWebContexts.push(otherPersonAndWebContext);
+  });
+
+  for (let L = 0; L <= maxLevel; L++){
+    let slots = []; //'slots' are a bunch of slots in a ring around the focal person, at the required distance, that can be filled up with person nodes. This means that people will never crash into each other!
+
+    let slotCount = Object.keys(slotsAtEachLevel).includes((L)+"") ? (slotsAtEachLevel[L] * L) : 1;
+    let spider_diagram_arm_length = (L) * 400;
+    let angle_diff = 360 / slotCount;
+
+    for (let i = 0; i < slotCount; i++){
+        let angle_in_rads = deg2rad((angle_diff * i));
+        let armXLength = (Math.sin(angle_in_rads) * spider_diagram_arm_length);
+        let armYLength = (Math.cos(angle_in_rads) * spider_diagram_arm_length);
+        let newSlot = {
+          position: [currentFocalPerson.positionOnSpiderDiagram[0] + armXLength, currentFocalPerson.positionOnSpiderDiagram[1] + armYLength],
+          occupant: null,
+          distOfOccupantToPrev: 999999999
+          };
+        slots.push(newSlot);
+    }
+
+    peopleWebContexts.forEach((personWebContext) => {
+      if (personWebContext.degreesFromFocalPerson == L){
+        if (personWebContext.prevPersonInWeb == null){ //then this is the root person and they get special treatment!
+          personWebContext.p.positionOnSpiderDiagram = [canvas.width/2, canvas.height/2];
         }
+
+        personWebContext.isAddedToWeb = true;
+
+        personWebContext.p.relations.forEach((relation) => {
+          for (let i = 0; i < peopleWebContexts.length; i++){
+            let otherPersonWebCtx = peopleWebContexts[i];
+            if (otherPersonWebCtx.p == relation.otherPerson){ //if the other person in this relationship is already added to the web, don't add them again. The return returns the forEach iteration in the relations array, not the wider function.
+              if (otherPersonWebCtx.isAddedToWeb){
+                return;
+              } else {
+                otherPersonWebCtx.prevPersonInWeb = personWebContext.p;
+                otherPersonWebCtx.isAddedToWeb = true;
+              }
+            }
+          }
+        });
+
+        //find the next closest available slot in this level's ring, and put this person node at the location of that slot
+
+        if (personWebContext.prevPersonInWeb != null){
+
+          let closestOccupiedDist = 999999999;
+          let closestOccupiedSlot = null;
+
+          let closestVacantDist = 999999999;
+          let closestVacantSlot = null;
+
+          slots.forEach((slot)=>{            
+              let dist = getDistanceBetween(slot.position, personWebContext.prevPersonInWeb.positionOnSpiderDiagram);
+              if (slot.occupant != null && dist < closestOccupiedDist){ //set the closest dist for a slot that is occupied (the ideal slot, that we might even boot something out of, if this one is a better fit)
+                closestOccupiedDist = dist;
+                closestOccupiedSlot = slot;
+              }
+              else if (slot.occupant == null && dist < closestVacantDist){ //set the closest dist for a slot that isn't occupied (a good enough slot if the occupant of our preferred slot turns out to have a better claim to it)
+                closestVacantDist = dist;
+                closestVacantSlot = slot;
+              }
+          });
+
+          if (closestVacantDist <= closestOccupiedDist){ //hooray! We got our first choice!
+              personWebContext.p.positionOnSpiderDiagram = closestVacantSlot.position;
+              closestVacantSlot.distOfOccupantToPrev = closestVacantDist;
+              closestVacantSlot.occupant = personWebContext;
+          } else {  //something else is in the slot that we want :( check its claim and swap if necessary
+            let competingOccupant = closestOccupiedSlot.occupant;
+            if (closestOccupiedSlot.distOfOccupantToPrev < closestOccupiedDist){ //they have a better claim, so we settle for the vacant slot
+              personWebContext.p.positionOnSpiderDiagram = closestVacantSlot.position;
+              closestVacantSlot.distOfOccupantToPrev = closestVacantDist;
+              closestVacantSlot.occupant = personWebContext;
+            } else {  //we have a better claim! Swap slots with them!
+              //put them into the second best slot:
+              competingOccupant.p.positionOnSpiderDiagram = closestVacantSlot.position;
+              closestVacantSlot.distOfOccupantToPrev = getDistanceBetween(competingOccupant.prevPersonInWeb, competingOccupant.p.positionOnSpiderDiagram);
+              closestVacantSlot.occupant = competingOccupant;
+              competingOccupant.p.updateConnectionLinePositions(competingOccupant.prevPersonInWeb);
+              //and put ourselves in the best slot:
+              personWebContext.p.positionOnSpiderDiagram = closestOccupiedSlot.position;
+              closestOccupiedSlot.distOfOccupantToPrev = closestOccupiedDist;
+              closestOccupiedSlot.occupant = personWebContext;
+            }
+          }
+          personWebContext.p.updateConnectionLinePositions(personWebContext.prevPersonInWeb);
+        }
+      }
     });
+  }
+}
 
-    if (relationsToInclude.length == 0){
-      return;
-    }
-
-    //generate the angles at which these will splay out from the centre (within a 90 degree arc opening towards the right, and a 90 degree arc opening towards the left)
-    let angles = [];
-
-    let spider_diagram_arm_length = 400;
-
-    let angle_total_space_on_one_side = 90;
-    let curAngle = null;
-    let angleSpacing = null;
-
-    if (relationsToInclude.length > 16) {
-      angle_total_space_on_one_side = 4 * relationsToInclude.length;
-    }
-
-    if (relationsToInclude.length == 1){
-      angles.push(dir == 0 ? 90 : dir);
-    } else if (relationsToInclude.length > 1){
-      if (dir == 0){  //if dir is 0, this is the first node, meaning it has no direction. So splay out on both sides 
-        curAngle = 90 - (angle_total_space_on_one_side/2);
-        angleSpacing = angle_total_space_on_one_side / (relationsToInclude.length / 2); 
-      } else { //but if it does have a direction, splay out only around that direction.
-        curAngle = dir - (angle_total_space_on_one_side/2);
-        angleSpacing = angle_total_space_on_one_side / relationsToInclude.length; 
-      }
-
-      relationsToInclude.forEach(() => {
-          angles.push(curAngle);
-        if (dir == 0) {
-          angles.push(-curAngle)
-        }
-
-        curAngle += angleSpacing;
-      });
-    }
-
-    for (let i = 0; i < relationsToInclude.length; i++) {
-      let relation = relationsToInclude[i];
-      let relationPerson = relation.otherPerson;
-      let angle = deg2rad(angles[i]);
-      let armXLength = (Math.sin(angle) * spider_diagram_arm_length);
-      let armYLength = (Math.cos(angle) * spider_diagram_arm_length);
-      relationPerson.positionOnSpiderDiagram = [person.positionOnSpiderDiagram[0] + armXLength, person.positionOnSpiderDiagram[1] + armYLength];
-      ctx.beginPath(); 
-      ctx.strokeStyle = "rgba(128,128,128,0.3)";
-      ctx.moveTo(canvasPanX + person.positionOnSpiderDiagram[0] + (armXLength/15), canvasPanY + person.positionOnSpiderDiagram[1] + (armYLength/15));
-      ctx.lineTo(canvasPanX + person.positionOnSpiderDiagram[0] + (armXLength * 9/10), canvasPanY + person.positionOnSpiderDiagram[1] + (armYLength * 9/10));
-      ctx.stroke();
-      ctx.font = "12px Arial";
-      ctx.fillStyle = "rgba(255,255,255,0.75)";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.save();
-      ctx.translate((canvasPanX + person.positionOnSpiderDiagram[0] + (armXLength / 2)),(canvasPanY + person.positionOnSpiderDiagram[1] + (armYLength / 2)));
-      
-      while (angle > Math.PI){
-        angle -= (Math.PI * 2);
-      }
-
-      while (angle < -Math.PI){
-        angle += (Math.PI * 2);
-      }
-
-      if (angle >= Math.PI || angle < 0){
-        ctx.rotate(-angle - 1.5708);
-        ctx.fillText(relationPerson.getImmediateRelationshipTextTo(person),0,0);
-      } else {
-        ctx.rotate(-angle + 1.5708);
-        ctx.fillText(relation.description,0,0);
-      }
-
-      ctx.restore();            
-      relationPerson.drawToCanvas();
-    };
-
-    for (let i = 0; i < relationsToInclude.length; i++) {
-      console.log("Hmm... this method of evaluating the tree diagram specifically isn't breadth-first! The normal dijkstra works correctly... but in the case of this tree diagram, it needs to make sure it's unfurled in ascending order of level from the centre...")
-        addRelationsToSpiderDiagram(relationsToInclude[i].otherPerson, peopleAlreadyInSpiderDiagram, level, angles[i]);  
-    }
+function getDistanceBetween(a,b){
+  return Math.hypot(a[0] - b[0], a[1] - b[1])
 }
 
 function deg2rad(deg){
@@ -267,6 +290,10 @@ class Person {
       this.name = name;
       this.relations = [];
       this.positionOnSpiderDiagram = [0,0];
+      this.connectionLineStart = [0,0];
+      this.connectionLineEnd = [0,0];
+      this.connectionTextPosition = [0,0];
+      this.connectionTextWithPrevOnVisualWeb = "";
   }
 
   addRelation(otherPerson,description,reverseDescription,createReverseRelationNow){
@@ -285,6 +312,7 @@ class Person {
 
   getRelationsDiv(){
     let ul = document.createElement("ul");
+    console.log(this.relations);
     this.relations.forEach((relation) => { 
       let li = document.createElement("li");
       let a = document.createElement("a");
@@ -309,17 +337,79 @@ class Person {
     return text;
   }
 
+  updateConnectionLinePositions(prevPerson){
+
+    let armXLength = this.positionOnSpiderDiagram[0] - prevPerson.positionOnSpiderDiagram[0]
+    let armYLength = this.positionOnSpiderDiagram[1] - prevPerson.positionOnSpiderDiagram[1];
+
+    this.connectionLineStart = [this.positionOnSpiderDiagram[0] - (armXLength/15),
+                                this.positionOnSpiderDiagram[1] - (armYLength/15)];
+
+    this.connectionLineEnd = [this.positionOnSpiderDiagram[0] - (armXLength*(9/10)),
+                              this.positionOnSpiderDiagram[1] - (armYLength*(9/10))];
+
+    this.connectionTextPosition = [this.positionOnSpiderDiagram[0] - (armXLength / 2),
+                                   this.positionOnSpiderDiagram[1] - (armYLength / 2)];
+
+    if (armXLength < 0){
+      this.connectionTextWithPrevOnVisualWeb = this.getImmediateRelationshipTextTo(prevPerson);
+    }  else {
+      this.connectionTextWithPrevOnVisualWeb = prevPerson.getImmediateRelationshipTextTo(this);
+    }                                  
+    
+    this.connectionTextAngle = Math.atan(armXLength,armYLength);
+    console.log(this.connectionTextAngle);
+  }
+
   drawToCanvas(){
+    // Draw circle background:
     ctx.beginPath();
     ctx.arc(canvasPanX + this.positionOnSpiderDiagram[0], canvasPanY + this.positionOnSpiderDiagram[1], 50, 0, 2 * Math.PI);
     ctx.fillStyle = "black";
     //ctx.stroke(); 
     //ctx.fill();
+
+    // Draw name text:
     ctx.font = "20px Arial";
     ctx.fillStyle = "white";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(this.name, canvasPanX + this.positionOnSpiderDiagram[0], canvasPanY + this.positionOnSpiderDiagram[1]);
+    
+    // Draw connection line with previous node:
+    ctx.beginPath(); 
+    ctx.strokeStyle = "rgba(128,128,128,0.3)"; 
+    ctx.moveTo(canvasPanX+this.connectionLineStart[0], canvasPanY+this.connectionLineStart[1]);
+    ctx.lineTo(canvasPanX+this.connectionLineEnd[0], canvasPanY+this.connectionLineEnd[1]);
+    ctx.stroke();
+
+    // Draw connection description over connection line:
+    ctx.font = "12px Arial";
+    ctx.fillStyle = "rgba(255,255,255,0.75)";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.save();
+    ctx.translate(canvasPanX + this.connectionTextPosition[0], canvasPanY + this.connectionTextPosition[1]);
+
+    let angle = this.connectionTextAngle;
+
+    while (angle > Math.PI){
+      angle -= (Math.PI * 2);
+    }
+
+    while (angle < -Math.PI){
+      angle += (Math.PI * 2);
+    }
+
+    if (angle >= Math.PI || angle < 0){
+      ctx.rotate(-angle - 1.5708);
+    } else {
+      ctx.rotate(-angle + 1.5708);
+    }
+
+    ctx.fillText(this.connectionTextWithPrevOnVisualWeb,0,0);
+      
+    ctx.restore();   
   }
 
   getAsObjectForJSON(){
@@ -333,7 +423,7 @@ class Person {
   getDegreesOfSeparationFrom(targetPerson, avoidPeople){
     
     if (targetPerson == this){
-      return this.name + " is 0 degrees away from "+targetPerson.name;
+      return 0;
     }
 
     if (avoidPeople == null){
@@ -429,7 +519,7 @@ class Person {
       }
     }
 
-    return reportString;
+    return peopleAndCounts[targetPerson.id];
   }
 }
 
@@ -525,11 +615,11 @@ getPerson("Clowns").addRelation(getPerson("Hamlet"),"trade witticisms with","tra
 getPerson("English Ambassadors").addRelation(getPerson("Rosencrantz"),"report the death of","is reported dead by",true);
 getPerson("English Ambassadors").addRelation(getPerson("Guildenstern"),"report the death of","is reported dead by",true);
 
-//loadAllFromJson(majora);
+loadAllFromJson(majora);
 
-spiderDiagramAvoidPeople = [getPersonWithMostConnections()];
+spiderDiagramAvoidPeople = [];
 
-setCurrentFocalPerson(getPersonById(0))
+setCurrentFocalPerson(getPersonWithMostConnections())
 
 /*
 people.forEach((person) => {
