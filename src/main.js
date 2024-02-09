@@ -55,6 +55,11 @@ canvas.addEventListener("mouseup", (e) => {
   oldMousePos = null;
 });
 
+function resetPeople(){
+  mostRecentlyAssignedID = 0;
+  people = [];
+}
+
 function setCurrentFocalPerson(p){
   currentFocalPerson = p;
   recalculateSpiderDiagram();
@@ -144,7 +149,8 @@ function recalculateSpiderDiagram(){
     let slots = []; //'slots' are a bunch of slots in a ring around the focal person, at the required distance, that can be filled up with person nodes. This means that people will never crash into each other!
 
     let slotCount = Object.keys(slotsAtEachLevel).includes((L)+"") ? (slotsAtEachLevel[L] * L) : 1;
-    let spider_diagram_arm_length = (L) * 400;
+    let spider_diagram_arm_length = L * 400;
+  
     let angle_diff = 360 / slotCount;
 
     for (let i = 0; i < slotCount; i++){
@@ -160,6 +166,7 @@ function recalculateSpiderDiagram(){
     }
 
     peopleWebContexts.forEach((personWebContext) => {
+
       if (personWebContext.degreesFromFocalPerson == L){
         if (personWebContext.prevPersonInWeb == null){ //then this is the root person and they get special treatment!
           personWebContext.p.positionOnSpiderDiagram = [canvas.width/2, canvas.height/2];
@@ -204,7 +211,7 @@ function recalculateSpiderDiagram(){
           });
 
           let ALWAYS_SETTLE_FOR_VACANT = true;
-          
+
           if (closestVacantDist <= closestOccupiedDist){ //hooray! We got our first choice!
               personWebContext.p.positionOnSpiderDiagram = closestVacantSlot.position;
               closestVacantSlot.distOfOccupantToPrev = closestVacantDist;
@@ -408,7 +415,9 @@ class Person {
       ctx.rotate(-angle + 1.5708);
     }
 
-    ctx.fillText(this.connectionTextWithPrevOnVisualWeb,0,0);
+    if (this.connectionTextWithPrevOnVisualWeb != null){
+      ctx.fillText(this.connectionTextWithPrevOnVisualWeb,0,0);  
+    }
       
     ctx.restore();   
   }
@@ -616,11 +625,138 @@ getPerson("Clowns").addRelation(getPerson("Hamlet"),"trade witticisms with","tra
 getPerson("English Ambassadors").addRelation(getPerson("Rosencrantz"),"report the death of","is reported dead by",true);
 getPerson("English Ambassadors").addRelation(getPerson("Guildenstern"),"report the death of","is reported dead by",true);
 
-loadAllFromJson(majora);
+resetPeople();
+
+addPerson("Prince Lady el Diablo")
+addPerson("Lady Carrington"),
+
+addPerson("Axel Warden"),
+addPerson("Henry Passmore"),
+addPerson("Nollaig Archemboult"),
+
+addPerson("Keir of Haworth"),
+addPerson("Viceroy Mircalla Lee"),
+addPerson("Ebony Webb"),
+addPerson("Cora Gettins"),
+addPerson("Maya Thornstep"),
+addPerson("Backbone"),
+addPerson("Celda Themis"),
+addPerson("Jane Bodkin Adams"),
+addPerson("Isadora Jones"),
+
+addPerson("Zoey Walker"),
+addPerson("Pete"),
+addPerson("Christopher Demott"),
+addPerson("Levi Rose"),
+addPerson("Willow Warneford"),
+addPerson("Kai Smith"),
+addPerson("Chester Willard"),
+addPerson("Lord Marcae"),
+addPerson("Barty Crane"),
+
+addPerson("Oswald Numeon"),
+addPerson("Robert Whyteside"),
+addPerson("Gwenyth Meredith"),
+addPerson("Isaac Sterling"),
+
+addPerson("Stargazer Fairfax"),
+addPerson("Theodore James"),
+addPerson("Lykofron"),
+addPerson("Mr Hawthorn"),
+addPerson("Father Ward"),
+addPerson("Alice Maddocks"),
+
+addPerson("Orpheus Renwick"),
+addPerson("Skitter"),
+addPerson("Agis IV"),
+addPerson("Nyk Mekhane"),
+addPerson("Mr Streed"),
+addPerson("Pine"),
+
+addPerson("Penrose"),
+addPerson("Harley Edwards"),
+addPerson("Lady Divinnia"),
+addPerson("Lyrik"),
+addPerson("Vivian Astor")
+addPerson("Johann Stieber"),
+addPerson("Lysander"),
+addPerson("Tiddles McSweenie"),
+addPerson("Ethel Cabbage"),
+
+//Council
+getPerson("Lady Carrington").addRelation(getPerson("Viceroy Mircalla Lee"),"Viceroy","Seneschal",true);
+getPerson("Lady Carrington").addRelation(getPerson("Nollaig Archemboult"),"Dominar","Seneschal",true);
+getPerson("Lady Carrington").addRelation(getPerson("Gwenyth Meredith"),"Bishop","Seneschal",true);
+getPerson("Lady Carrington").addRelation(getPerson("Levi Rose"),"Ospite","Seneschal",true);
+getPerson("Lady Carrington").addRelation(getPerson("Henry Passmore"),"Hierophant","Seneschal",true);
+getPerson("Lady Carrington").addRelation(getPerson("Isaac Sterling"),"Obi","Seneschal",true);
+getPerson("Lady Carrington").addRelation(getPerson("Ebony Webb"),"Convener","Seneschal",true);
+getPerson("Lady Carrington").addRelation(getPerson("Theodore James"),"Alpha","Seneschal",true);
+getPerson("Lady Carrington").addRelation(getPerson("Cora Gettins"),"Prefect","Seneschal",true);
+getPerson("Lady Carrington").addRelation(getPerson("Mr Streed"),"Custodes","Seneschal",true);
+
+//Court (defined below council so that council members with low court positions are registered as council members first (otherwise their clan/cov members won't stem from them in the right capacity!))
+getPerson("Prince Lady el Diablo").addRelation(getPerson("Mr Hawthorn"),"Sheriff","Prince",true);
+getPerson("Prince Lady el Diablo").addRelation(getPerson("Maya Thornstep"),"Harpy","Prince",true);
+getPerson("Prince Lady el Diablo").addRelation(getPerson("Axel Warden"),"Master of Elysium","Prince",true);
+getPerson("Prince Lady el Diablo").addRelation(getPerson("Skitter"),"Herald","Prince",true);
+getPerson("Prince Lady el Diablo").addRelation(getPerson("Lady Carrington"),"Seneschal","Prince",true);
+getPerson("Mr Hawthorn").addRelation(getPerson("Maya Thornstep"),"Hound","Prince",true);
+getPerson("Axel Warden").addRelation(getPerson("Nyk Mekhane"),"Champion","Prince",true);
+
+//Clan members
+
+getPerson("Isaac Sterling").addRelation(getPerson("Oswald Numeon"),"Mekhet","Obi",true);
+getPerson("Isaac Sterling").addRelation(getPerson("Robert Whyteside"),"Mekhet","Obi",true);
+getPerson("Isaac Sterling").addRelation(getPerson("Gwenyth Meredith"),"Mekhet","Obi",true);
+getPerson("Isaac Sterling").addRelation(getPerson("Isaac Sterling"),"Mekhet","Obi",true);
+
+getPerson("Mr Streed").addRelation(getPerson("Orpheus Renwick"),"Nosferatu","Custodes",true);
+getPerson("Mr Streed").addRelation(getPerson("Skitter"),"Nosferatu","Custodes",true);
+getPerson("Mr Streed").addRelation(getPerson("Agis IV"),"Nosferatu","Custodes",true);
+getPerson("Mr Streed").addRelation(getPerson("Nyk Mekhane"),"Nosferatu","Custodes",true);
+getPerson("Mr Streed").addRelation(getPerson("Mr Streed"),"Nosferatu","Custodes",true);
+getPerson("Mr Streed").addRelation(getPerson("Pine"),"Nosferatu","Custodes",true);
+
+getPerson("Theodore James").addRelation(getPerson("Stargazer Fairfax"),"Gangrel","Alpha",true);
+getPerson("Theodore James").addRelation(getPerson("Theodore James"),"Gangrel","Alpha",true);
+getPerson("Theodore James").addRelation(getPerson("Lykofron"),"Gangrel","Alpha",true);
+getPerson("Theodore James").addRelation(getPerson("Mr Hawthorn"),"Gangrel","Alpha",true);
+getPerson("Theodore James").addRelation(getPerson("Father Ward"),"Gangrel","Alpha",true);
+getPerson("Theodore James").addRelation(getPerson("Alice Maddocks"),"Gangrel","Alpha",true);
+getPerson("Theodore James").addRelation(getPerson("Ethel Cabbage"),"Gangrel","Alpha",true);
+
+getPerson("Levi Rose").addRelation(getPerson("Zoey Walker"),"Daeva","Ospite",true);
+getPerson("Levi Rose").addRelation(getPerson("Pete"),"Daeva","Ospite",true);
+getPerson("Levi Rose").addRelation(getPerson("Christopher Demott"),"Daeva","Ospite",true);
+getPerson("Levi Rose").addRelation(getPerson("Levi Rose"),"Daeva","Ospite",true);
+getPerson("Levi Rose").addRelation(getPerson("Willow Warneford"),"Daeva","Ospite",true);
+getPerson("Levi Rose").addRelation(getPerson("Kai Smith"),"Daeva","Ospite",true);
+getPerson("Levi Rose").addRelation(getPerson("Chester Willard"),"Daeva","Ospite",true);
+getPerson("Levi Rose").addRelation(getPerson("Lord Marcae"),"Daeva","Ospite",true);
+getPerson("Levi Rose").addRelation(getPerson("Barty Crane"),"Daeva","Ospite",true);
+getPerson("Levi Rose").addRelation(getPerson("Axel Warden"),"Daeva","Ospite",true);
+
+getPerson("Nollaig Archemboult").addRelation(getPerson("Keir of Haworth"),"Ventrue","Dominar",true);
+getPerson("Nollaig Archemboult").addRelation(getPerson("Viceroy Mircalla Lee"),"Ventrue","Dominar",true);
+getPerson("Nollaig Archemboult").addRelation(getPerson("Lady Carrington"),"Ventrue","Dominar",true);
+getPerson("Nollaig Archemboult").addRelation(getPerson("Ebony Webb"),"Ventrue","Dominar",true);
+getPerson("Nollaig Archemboult").addRelation(getPerson("Cora Gettins"),"Ventrue","Dominar",true);
+getPerson("Nollaig Archemboult").addRelation(getPerson("Maya Thornstep"),"Ventrue","Dominar",true);
+getPerson("Nollaig Archemboult").addRelation(getPerson("Backbone"),"Ventrue","Dominar",true);
+getPerson("Nollaig Archemboult").addRelation(getPerson("Celda Themis"),"Ventrue","Dominar",true);
+getPerson("Nollaig Archemboult").addRelation(getPerson("Jane Bodkin Adams"),"Ventrue","Dominar",true);
+getPerson("Nollaig Archemboult").addRelation(getPerson("Isadora Jones"),"Ventrue","Dominar",true);
+getPerson("Nollaig Archemboult").addRelation(getPerson("Nollaig Archemboult"),"Ventrue","Dominar",true);
+getPerson("Nollaig Archemboult").addRelation(getPerson("Lady Carrington"),"Ventrue","Dominar",true);
+getPerson("Nollaig Archemboult").addRelation(getPerson("Prince Lady el Diablo"),"Ventrue","Dominar",true);
+
+
+//loadAllFromJson(majora);
 
 spiderDiagramAvoidPeople = [];
 
-setCurrentFocalPerson(getPersonWithMostConnections())
+setCurrentFocalPerson(getPersonById(1))
 
 /*
 people.forEach((person) => {
