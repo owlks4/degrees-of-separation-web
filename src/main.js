@@ -203,18 +203,21 @@ function recalculateSpiderDiagram(){
               }
           });
 
+          let ALWAYS_SETTLE_FOR_VACANT = true;
+          
           if (closestVacantDist <= closestOccupiedDist){ //hooray! We got our first choice!
               personWebContext.p.positionOnSpiderDiagram = closestVacantSlot.position;
               closestVacantSlot.distOfOccupantToPrev = closestVacantDist;
               closestVacantSlot.occupant = personWebContext;
           } else {  //something else is in the slot that we want :( check its claim and swap if necessary
             let competingOccupant = closestOccupiedSlot.occupant;
-            if (closestOccupiedSlot.distOfOccupantToPrev < closestOccupiedDist){ //they have a better claim, so we settle for the vacant slot
+            if (closestOccupiedSlot.distOfOccupantToPrev <= closestOccupiedDist || ALWAYS_SETTLE_FOR_VACANT){ //they have a better claim, so we settle for the vacant slot
               personWebContext.p.positionOnSpiderDiagram = closestVacantSlot.position;
               closestVacantSlot.distOfOccupantToPrev = closestVacantDist;
               closestVacantSlot.occupant = personWebContext;
             } else {  //we have a better claim! Swap slots with them!
               //put them into the second best slot:
+              console.log(competingOccupant.p.name + " kicked out of its spot by a better candidate ("+personWebContext.p.name+")!")
               competingOccupant.p.positionOnSpiderDiagram = closestVacantSlot.position;
               closestVacantSlot.distOfOccupantToPrev = getDistanceBetween(competingOccupant.prevPersonInWeb, competingOccupant.p.positionOnSpiderDiagram);
               closestVacantSlot.occupant = competingOccupant;
@@ -312,7 +315,6 @@ class Person {
 
   getRelationsDiv(){
     let ul = document.createElement("ul");
-    console.log(this.relations);
     this.relations.forEach((relation) => { 
       let li = document.createElement("li");
       let a = document.createElement("a");
@@ -352,13 +354,12 @@ class Person {
                                    this.positionOnSpiderDiagram[1] - (armYLength / 2)];
 
     if (armXLength < 0){
-      this.connectionTextWithPrevOnVisualWeb = this.getImmediateRelationshipTextTo(prevPerson);
+      this.connectionTextWithPrevOnVisualWeb = prevPerson.getImmediateRelationshipTextTo(this); //these two have temporarily, or maybe permanently, been made the same, because it flows better now that the web is concentric
     }  else {
       this.connectionTextWithPrevOnVisualWeb = prevPerson.getImmediateRelationshipTextTo(this);
     }                                  
     
     this.connectionTextAngle = Math.atan(armXLength,armYLength);
-    console.log(this.connectionTextAngle);
   }
 
   drawToCanvas(){

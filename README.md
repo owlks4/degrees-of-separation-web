@@ -1,1 +1,1 @@
-A relationship web program that uses Dijkstra to calculate the degrees of separation between any two people in the web.
+A relationship web program that uses Dijkstra's algorithm to visually depict the degrees of separation.
