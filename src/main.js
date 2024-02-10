@@ -124,9 +124,7 @@ function recalculateSpiderDiagram(){
 
   let peopleWebContexts = [];
 
-  currentFocalPerson.positionOnSpiderDiagram = [canvas.width/2, canvas.height/2];
   let maxLevel = -1;
-  
   let slotsAtEachLevel = {};
 
   people.forEach((otherPerson) => {
@@ -234,9 +232,9 @@ function recalculateSpiderDiagram(){
               closestOccupiedSlot.distOfOccupantToPrev = closestOccupiedDist;
               closestOccupiedSlot.occupant = personWebContext;
             }
-          }
-          personWebContext.p.updateConnectionLinePositions(personWebContext.prevPersonInWeb);
+          }          
         }
+        personWebContext.p.updateConnectionLinePositions(personWebContext.prevPersonInWeb);
       }
     });
   }
@@ -347,26 +345,32 @@ class Person {
   }
 
   updateConnectionLinePositions(prevPerson){
-
-    let armXLength = this.positionOnSpiderDiagram[0] - prevPerson.positionOnSpiderDiagram[0]
-    let armYLength = this.positionOnSpiderDiagram[1] - prevPerson.positionOnSpiderDiagram[1];
-
-    this.connectionLineStart = [this.positionOnSpiderDiagram[0] - (armXLength/15),
-                                this.positionOnSpiderDiagram[1] - (armYLength/15)];
-
-    this.connectionLineEnd = [this.positionOnSpiderDiagram[0] - (armXLength*(9/10)),
-                              this.positionOnSpiderDiagram[1] - (armYLength*(9/10))];
-
-    this.connectionTextPosition = [this.positionOnSpiderDiagram[0] - (armXLength / 2),
-                                   this.positionOnSpiderDiagram[1] - (armYLength / 2)];
-
-    if (armXLength < 0){
-      this.connectionTextWithPrevOnVisualWeb = prevPerson.getImmediateRelationshipTextTo(this); //these two have temporarily, or maybe permanently, been made the same, because it flows better now that the web is concentric
-    }  else {
-      this.connectionTextWithPrevOnVisualWeb = prevPerson.getImmediateRelationshipTextTo(this);
-    }                                  
+    let armXLength = 0;
+    let armYLength = 0;
     
-    this.connectionTextAngle = Math.atan(armXLength,armYLength);
+    if (prevPerson != null){
+      armXLength = this.positionOnSpiderDiagram[0] - prevPerson.positionOnSpiderDiagram[0]
+      armYLength = this.positionOnSpiderDiagram[1] - prevPerson.positionOnSpiderDiagram[1];
+    
+      this.connectionLineStart = [this.positionOnSpiderDiagram[0] - (armXLength/15),
+                                  this.positionOnSpiderDiagram[1] - (armYLength/15)];
+
+      this.connectionLineEnd = [this.positionOnSpiderDiagram[0] - (armXLength*(9/10)),
+                                this.positionOnSpiderDiagram[1] - (armYLength*(9/10))];
+
+      this.connectionTextPosition = [this.positionOnSpiderDiagram[0] - (armXLength / 2),
+                                    this.positionOnSpiderDiagram[1] - (armYLength / 2)];
+
+      if (armXLength < 0){
+        this.connectionTextWithPrevOnVisualWeb = prevPerson.getImmediateRelationshipTextTo(this); //these two have temporarily, or maybe permanently, been made the same, because it flows better now that the web is concentric
+      }  else {
+        this.connectionTextWithPrevOnVisualWeb = prevPerson.getImmediateRelationshipTextTo(this);
+      }                                  
+      
+      this.connectionTextAngle = Math.atan(armXLength,armYLength);
+    } else {
+      this.connectionTextWithPrevOnVisualWeb = null;
+    }
   }
 
   drawToCanvas(){
@@ -384,42 +388,44 @@ class Person {
     ctx.textBaseline = "middle";
     ctx.fillText(this.name, canvasPanX + this.positionOnSpiderDiagram[0], canvasPanY + this.positionOnSpiderDiagram[1]);
     
-    // Draw connection line with previous node:
-    ctx.beginPath(); 
-    ctx.strokeStyle = "rgba(128,128,128,0.3)"; 
-    ctx.moveTo(canvasPanX+this.connectionLineStart[0], canvasPanY+this.connectionLineStart[1]);
-    ctx.lineTo(canvasPanX+this.connectionLineEnd[0], canvasPanY+this.connectionLineEnd[1]);
-    ctx.stroke();
-
-    // Draw connection description over connection line:
-    ctx.font = "12px Arial";
-    ctx.fillStyle = "rgba(255,255,255,0.75)";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.save();
-    ctx.translate(canvasPanX + this.connectionTextPosition[0], canvasPanY + this.connectionTextPosition[1]);
-
-    let angle = this.connectionTextAngle;
-
-    while (angle > Math.PI){
-      angle -= (Math.PI * 2);
-    }
-
-    while (angle < -Math.PI){
-      angle += (Math.PI * 2);
-    }
-
-    if (angle >= Math.PI || angle < 0){
-      ctx.rotate(-angle - 1.5708);
-    } else {
-      ctx.rotate(-angle + 1.5708);
-    }
-
     if (this.connectionTextWithPrevOnVisualWeb != null){
-      ctx.fillText(this.connectionTextWithPrevOnVisualWeb,0,0);  
+      // Draw connection line with previous node:
+      ctx.beginPath(); 
+      ctx.strokeStyle = "rgba(128,128,128,0.3)"; 
+      ctx.moveTo(canvasPanX+this.connectionLineStart[0], canvasPanY+this.connectionLineStart[1]);
+      ctx.lineTo(canvasPanX+this.connectionLineEnd[0], canvasPanY+this.connectionLineEnd[1]);
+      ctx.stroke();
+
+      // Draw connection description over connection line:
+      ctx.font = "12px Arial";
+      ctx.fillStyle = "rgba(255,255,255,0.75)";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.save();
+      ctx.translate(canvasPanX + this.connectionTextPosition[0], canvasPanY + this.connectionTextPosition[1]);
+
+      let angle = this.connectionTextAngle;
+
+      while (angle > Math.PI){
+        angle -= (Math.PI * 2);
+      }
+
+      while (angle < -Math.PI){
+        angle += (Math.PI * 2);
+      }
+
+      //if (angle >= Math.PI || angle < 0){
+      //  ctx.rotate(-angle - 1.5708);
+      //} else {
+      //  ctx.rotate(-angle + 1.5708);
+      //}
+
+      if (this.connectionTextWithPrevOnVisualWeb != null){
+        ctx.fillText(this.connectionTextWithPrevOnVisualWeb,0,0);  
+      }
+        
+      ctx.restore();   
     }
-      
-    ctx.restore();   
   }
 
   getAsObjectForJSON(){
