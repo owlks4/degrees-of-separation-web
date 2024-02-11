@@ -21,6 +21,9 @@ let canvasPanY = 0; //is set to its default elsewhere
 let colouredConnectionTexts = {};
 let USE_COLOURED_CONNECTION_TEXTS = false;
 let ALWAYS_SETTLE_FOR_VACANT = true;
+let DRAW_ANGLED_NAME_TEXT = false;
+
+window.addEventListener("resize", (event) => {ctx.canvas.width,ctx.canvas.height});
 
 document.addEventListener('keyup', (e) => {
   let change = 20;
@@ -205,6 +208,9 @@ function loadFromVersion2JsonFile(obj){ //loads from a V2 json file - where the 
         case "ALWAYS_SETTLE_FOR_VACANT":
           ALWAYS_SETTLE_FOR_VACANT = jsonSettings.ALWAYS_SETTLE_FOR_VACANT;
         break;
+        case "DRAW_ANGLED_NAME_TEXT":
+          DRAW_ANGLED_NAME_TEXT = jsonSettings.DRAW_ANGLED_NAME_TEXT;
+        break;
       }
     });
   }
@@ -283,7 +289,8 @@ function getAllAsJSON(){
   output["jsonRoles"] = jsonRoles;
   output["jsonSettings"] = {colouredConnectionTexts:colouredConnectionTexts,
                             USE_COLOURED_CONNECTION_TEXTS:USE_COLOURED_CONNECTION_TEXTS,
-                            ALWAYS_SETTLE_FOR_VACANT:ALWAYS_SETTLE_FOR_VACANT};
+                            ALWAYS_SETTLE_FOR_VACANT:ALWAYS_SETTLE_FOR_VACANT,
+                            DRAW_ANGLED_NAME_TEXT:DRAW_ANGLED_NAME_TEXT};
 
 
   return JSON.stringify(output);
@@ -545,6 +552,25 @@ function addPerson(name){
   people.push(new Person(name));
 }  
 
+function drawTextToCanvas(ctx, position, angle, text){
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.save();
+  ctx.translate(canvasPanX + position[0], canvasPanY + position[1]);
+
+  if (angle >= Math.PI || angle < 0){
+    ctx.rotate(-angle - 1.5708);
+  } else {
+    ctx.rotate(-angle + 1.5708);
+  }
+
+  if (text != null){
+    ctx.fillText(text,0,0);  
+  }
+    
+  ctx.restore(); 
+}
+
 class Role {
   constructor(name){
     this.name = name;
@@ -681,6 +707,7 @@ class Person {
      
     } else {
       this.connectionTextWithPrevOnVisualWeb = null;
+      this.connectionTextAngle = Math.PI/2;
     }
   }
 
@@ -691,14 +718,13 @@ class Person {
     ctx.fillStyle = "black";
     //ctx.stroke(); 
     //ctx.fill();
-
+   
     // Draw name text:
     ctx.font = "20px Arial";
     ctx.fillStyle = "white";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(this.name, canvasPanX + this.positionOnSpiderDiagram[0], canvasPanY + this.positionOnSpiderDiagram[1]);
-    
+
+    drawTextToCanvas(ctx, this.positionOnSpiderDiagram, DRAW_ANGLED_NAME_TEXT ? this.connectionTextAngle : Math.PI/2, this.name);
+
     if (this.connectionTextWithPrevOnVisualWeb != null){
       // Draw connection line with previous node:
       ctx.beginPath(); 
@@ -708,30 +734,14 @@ class Person {
       ctx.stroke();
 
       // Draw connection description over connection line:
-      ctx.font = "12px Arial";
+   
 	  if (USE_COLOURED_CONNECTION_TEXTS && Object.keys(colouredConnectionTexts).includes(this.connectionTextWithPrevOnVisualWeb.toLowerCase())){
 		  ctx.fillStyle = colouredConnectionTexts[this.connectionTextWithPrevOnVisualWeb.toLowerCase()];
 	  } else {
-		ctx.fillStyle = "rgba(255,255,255,0.75)";  
-	  }     
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.save();
-      ctx.translate(canvasPanX + this.connectionTextPosition[0], canvasPanY + this.connectionTextPosition[1]);
-
-      let angle = this.connectionTextAngle;
-
-      if (angle >= Math.PI || angle < 0){
-        ctx.rotate(-angle - 1.5708);
-      } else {
-        ctx.rotate(-angle + 1.5708);
-      }
-
-      if (this.connectionTextWithPrevOnVisualWeb != null){
-        ctx.fillText(this.connectionTextWithPrevOnVisualWeb,0,0);  
-      }
-        
-      ctx.restore();   
+		  ctx.fillStyle = "rgba(255,255,255,0.75)";  
+	  }    
+      ctx.font = "12px Arial";
+      drawTextToCanvas(ctx, this.connectionTextPosition, this.connectionTextAngle, this.connectionTextWithPrevOnVisualWeb)
     }
   }
 
@@ -933,3 +943,5 @@ dropdown.appendChild(makeOptionFor(hamlet, "Hamlet"));
 
 reset();
 dropdown.children[0].click();
+
+setupAfterLoad();

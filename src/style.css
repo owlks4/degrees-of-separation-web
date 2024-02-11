@@ -11,6 +11,8 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  overflow:hidden;
 }
 
 a {
@@ -68,6 +70,8 @@ button:focus-visible {
 canvas {
   cursor:grab;
   position:absolute;
+  left:0;
+  top:0;
 }
 
 canvas:active {
