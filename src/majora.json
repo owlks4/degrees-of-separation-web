@@ -1,1 +1,361 @@
-[{"name":"Happy Mask Salesman","id":0,"relations":[{"personId":0,"otherPersonId":1,"description":"assigns a mask retrieval mission to"},{"personId":0,"otherPersonId":2,"description":"was mugged by"}]},{"name":"Link","id":1,"relations":[{"personId":1,"otherPersonId":0,"description":"receives a mask retrieval mission from the"},{"personId":1,"otherPersonId":3,"description":"is begrudgingly accompanied by"},{"personId":1,"otherPersonId":84,"description":"is given the Stone Mask by"},{"personId":1,"otherPersonId":12,"description":"infiltrates the hideout of"},{"personId":1,"otherPersonId":15,"description":"brings inspiration to"},{"personId":1,"otherPersonId":16,"description":"brings inspiration to"},{"personId":1,"otherPersonId":18,"description":"heals the soul of"},{"personId":1,"otherPersonId":48,"description":"heals the soul of"},{"personId":1,"otherPersonId":49,"description":"heals the soul of"},{"personId":1,"otherPersonId":50,"description":"takes the form of"},{"personId":1,"otherPersonId":51,"description":"heals the soul of"},{"personId":1,"otherPersonId":6,"description":"infiltrates Sakon's hideout with"},{"personId":1,"otherPersonId":63,"description":"is given a quiz by"},{"personId":1,"otherPersonId":21,"description":"defeats"},{"personId":1,"otherPersonId":23,"description":"serves as a detective for"},{"personId":1,"otherPersonId":27,"description":"is given the bunny hood by the"},{"personId":1,"otherPersonId":29,"description":"frees"},{"personId":1,"otherPersonId":30,"description":"is recruited by"},{"personId":1,"otherPersonId":34,"description":"is challenged to a race by the"},{"personId":1,"otherPersonId":41,"description":"buys maps from"},{"personId":1,"otherPersonId":40,"description":"is taught the Song of Soaring by"},{"personId":1,"otherPersonId":46,"description":"is sold magic beans by the"},{"personId":1,"otherPersonId":47,"description":"banks with the"},{"personId":1,"otherPersonId":68,"description":"impersonates"},{"personId":1,"otherPersonId":69,"description":"gives paper to"},{"personId":1,"otherPersonId":74,"description":"is forged new swords by"},{"personId":1,"otherPersonId":75,"description":"commissions new swords from"},{"personId":1,"otherPersonId":80,"description":"bets on a dog race run by"},{"personId":1,"otherPersonId":81,"description":"speeds up the growth of chicks owned by"},{"personId":1,"otherPersonId":79,"description":"races the"},{"personId":1,"otherPersonId":83,"description":"dismisses"},{"personId":1,"otherPersonId":85,"description":"is prevented from entering Ikana Canyon by"}]},{"name":"Skull Kid","id":2,"relations":[{"personId":2,"otherPersonId":0,"description":"stole an ancient cursed mask from the"},{"personId":2,"otherPersonId":3,"description":"used to be friends with"},{"personId":2,"otherPersonId":4,"description":"used to be friends with"},{"personId":2,"otherPersonId":6,"description":"has set a curse on"},{"personId":2,"otherPersonId":31,"description":"is a former member of the"},{"personId":2,"otherPersonId":28,"description":"is possessed by"},{"personId":2,"otherPersonId":29,"description":"believes he was betrayed by"},{"personId":2,"otherPersonId":62,"description":"has set a curse on"}]},{"name":"Tatl","id":3,"relations":[{"personId":3,"otherPersonId":2,"description":"used to be friends with"},{"personId":3,"otherPersonId":1,"description":"begrudgingly accompanies"},{"personId":3,"otherPersonId":4,"description":"is sister to"}]},{"name":"Tael","id":4,"relations":[{"personId":4,"otherPersonId":3,"description":"is the brother of"},{"personId":4,"otherPersonId":2,"description":"used to be friends with"}]},{"name":"Anju","id":5,"relations":[{"personId":5,"otherPersonId":6,"description":"is engaged to"},{"personId":5,"otherPersonId":10,"description":"is friends with"},{"personId":5,"otherPersonId":9,"description":"is the daughter of"},{"personId":5,"otherPersonId":8,"description":"is the granddaughter of"},{"personId":5,"otherPersonId":7,"description":"is the daughter of"},{"personId":5,"otherPersonId":27,"description":"receives a letter from the"},{"personId":5,"otherPersonId":68,"description":"accepts custom from"}]},{"name":"Kafei","id":6,"relations":[{"personId":6,"otherPersonId":5,"description":"is engaged to"},{"personId":6,"otherPersonId":2,"description":"was transformed into a child by"},{"personId":6,"otherPersonId":31,"description":"is a former member of the"},{"personId":6,"otherPersonId":7,"description":"is believed to have run off with Cremia by"},{"personId":6,"otherPersonId":11,"description":"is being sheltered by"},{"personId":6,"otherPersonId":12,"description":"had his wedding mask stolen by"},{"personId":6,"otherPersonId":1,"description":"infiltrates Sakon's hideout with"},{"personId":6,"otherPersonId":22,"description":"is the son of"},{"personId":6,"otherPersonId":23,"description":"is the son of"},{"personId":6,"otherPersonId":27,"description":"receives a letter from the"}]},{"name":"Anju's mother","id":7,"relations":[{"personId":7,"otherPersonId":8,"description":"is the daughter-in-law of"},{"personId":7,"otherPersonId":5,"description":"is mother to"},{"personId":7,"otherPersonId":9,"description":"was wife to"},{"personId":7,"otherPersonId":10,"description":"believes Kafei ran off with"},{"personId":7,"otherPersonId":6,"description":"believes Cremia ran off with"}]},{"name":"Anju's grandmother","id":8,"relations":[{"personId":8,"otherPersonId":5,"description":"is grandmother to"},{"personId":8,"otherPersonId":9,"description":"was mother to"},{"personId":8,"otherPersonId":7,"description":"is the mother-in-law of"},{"personId":8,"otherPersonId":22,"description":"was a teacher of"}]},{"name":"Tortus","id":9,"relations":[{"personId":9,"otherPersonId":5,"description":"was the father of"},{"personId":9,"otherPersonId":8,"description":"was the son of"},{"personId":9,"otherPersonId":7,"description":"was the husband of"}]},{"name":"Cremia","id":10,"relations":[{"personId":10,"otherPersonId":5,"description":"is friends with"},{"personId":10,"otherPersonId":7,"description":"is believed to have run off with Kafei by"},{"personId":10,"otherPersonId":19,"description":"is terrorised by the"},{"personId":10,"otherPersonId":21,"description":"had her cows stolen by"},{"personId":10,"otherPersonId":20,"description":"is the older sister of"}]},{"name":"Curiosity Shop Owner","id":11,"relations":[{"personId":11,"otherPersonId":6,"description":"offers protection to"},{"personId":11,"otherPersonId":12,"description":"is reluctant to purchase goods from"},{"personId":11,"otherPersonId":43,"description":"employs the"}]},{"name":"Sakon","id":12,"relations":[{"personId":12,"otherPersonId":11,"description":"feels he is being ripped off by"},{"personId":12,"otherPersonId":6,"description":"has stolen a wedding mask from"},{"personId":12,"otherPersonId":1,"description":"has his hideout infiltrated by"},{"personId":12,"otherPersonId":45,"description":"steals the bomb bag from the"}]},{"name":"Gorman","id":13,"relations":[{"personId":13,"otherPersonId":14,"description":"leads a circus troupe employing"},{"personId":13,"otherPersonId":15,"description":"leads a circus troupe employing"},{"personId":13,"otherPersonId":16,"description":"leads a circus troupe employing"},{"personId":13,"otherPersonId":17,"description":"leads a circus troupe employing"},{"personId":13,"otherPersonId":19,"description":"is the third brother to the two"},{"personId":13,"otherPersonId":23,"description":"has his act cancelled by"},{"personId":13,"otherPersonId":26,"description":"drinks at the establishment of"}]},{"name":"Guru-Guru","id":14,"relations":[{"personId":14,"otherPersonId":13,"description":"is in a circus troupe led by"}]},{"name":"Judo Rosa","id":15,"relations":[{"personId":15,"otherPersonId":13,"description":"is a dancer in a circus troupe led by"},{"personId":15,"otherPersonId":16,"description":"is the twin sister of"},{"personId":15,"otherPersonId":1,"description":"is inspired by a dance performance from"}]},{"name":"Marilla Rosa","id":16,"relations":[{"personId":16,"otherPersonId":13,"description":"is a dancer in a circus troupe led by"},{"personId":16,"otherPersonId":15,"description":"is the twin sister of"},{"personId":16,"otherPersonId":1,"description":"is inspired by a dance performance from"}]},{"name":"Twin Jugglers","id":17,"relations":[{"personId":17,"otherPersonId":13,"description":"juggle for a circus troupe led by"}]},{"name":"Kamaro","id":18,"relations":[{"personId":18,"otherPersonId":1,"description":"is healed by"}]},{"name":"Gorman Bros.","id":19,"relations":[{"personId":19,"otherPersonId":13,"description":"are the other two brothers of"},{"personId":19,"otherPersonId":10,"description":"are terrorising"}]},{"name":"Romani","id":20,"relations":[{"personId":20,"otherPersonId":21,"description":"is temporarily abducted by"},{"personId":20,"otherPersonId":10,"description":"is the younger sister of"}]},{"name":"the Aliens","id":21,"relations":[{"personId":21,"otherPersonId":20,"description":"temporarily abduct"},{"personId":21,"otherPersonId":10,"description":"are stealing cows from"},{"personId":21,"otherPersonId":1,"description":"are defeated by"}]},{"name":"Mayor Dotour","id":22,"relations":[{"personId":22,"otherPersonId":8,"description":"was taught by"},{"personId":22,"otherPersonId":6,"description":"is father to"},{"personId":22,"otherPersonId":23,"description":"is husband to"},{"personId":22,"otherPersonId":24,"description":"is advised by"},{"personId":22,"otherPersonId":25,"description":"is continually berated by"},{"personId":22,"otherPersonId":71,"description":"employs"}]},{"name":"Madame Aroma","id":23,"relations":[{"personId":23,"otherPersonId":6,"description":"is mother to"},{"personId":23,"otherPersonId":22,"description":"is wife to"},{"personId":23,"otherPersonId":13,"description":"regretfully cancels the act of"},{"personId":23,"otherPersonId":26,"description":"drinks at the establishment of"},{"personId":23,"otherPersonId":1,"description":"requests help from"},{"personId":23,"otherPersonId":27,"description":"employs the"},{"personId":23,"otherPersonId":59,"description":"is in carnival-related talks with"},{"personId":23,"otherPersonId":71,"description":"employs"}]},{"name":"Viscen","id":24,"relations":[{"personId":24,"otherPersonId":22,"description":"is advisor to"}]},{"name":"Mutoh","id":25,"relations":[{"personId":25,"otherPersonId":22,"description":"continually berates"},{"personId":25,"otherPersonId":64,"description":"is father to"},{"personId":25,"otherPersonId":65,"description":"is father to"},{"personId":25,"otherPersonId":66,"description":"employs"}]},{"name":"Mr Barten","id":26,"relations":[{"personId":26,"otherPersonId":13,"description":"serves"},{"personId":26,"otherPersonId":23,"description":"serves"}]},{"name":"Postman","id":27,"relations":[{"personId":27,"otherPersonId":5,"description":"delivers a letter to"},{"personId":27,"otherPersonId":6,"description":"delivers a letter to"},{"personId":27,"otherPersonId":23,"description":"is employed by"},{"personId":27,"otherPersonId":27,"description":"delivers a letter to"},{"personId":27,"otherPersonId":1,"description":"gives the bunny hood to"}]},{"name":"Majora","id":28,"relations":[{"personId":28,"otherPersonId":2,"description":"possesses"}]},{"name":"the Four Giants","id":29,"relations":[{"personId":29,"otherPersonId":2,"description":"still consider themselves friends to"},{"personId":29,"otherPersonId":1,"description":"are freed by"}]},{"name":"Jim","id":30,"relations":[{"personId":30,"otherPersonId":1,"description":"recruits"},{"personId":30,"otherPersonId":31,"description":"is the leader of the"}]},{"name":"the Bombers","id":31,"relations":[{"personId":31,"otherPersonId":6,"description":"formerly included"},{"personId":31,"otherPersonId":2,"description":"formerly included"},{"personId":31,"otherPersonId":30,"description":"are led by"},{"personId":31,"otherPersonId":32,"description":"know"}]},{"name":"Professor Shikashi","id":32,"relations":[{"personId":32,"otherPersonId":31,"description":"is familiar with"}]},{"name":"Deku King","id":33,"relations":[{"personId":33,"otherPersonId":35,"description":"is the father of"},{"personId":33,"otherPersonId":34,"description":"employs the"},{"personId":33,"otherPersonId":36,"description":"imprisons the"}]},{"name":"Deku Butler","id":34,"relations":[{"personId":34,"otherPersonId":1,"description":"is reminded of his son by"},{"personId":34,"otherPersonId":50,"description":"is the father of"},{"personId":34,"otherPersonId":33,"description":"works for the"}]},{"name":"Deku Princess","id":35,"relations":[{"personId":35,"otherPersonId":33,"description":"is the daughter of"},{"personId":35,"otherPersonId":36,"description":"is falsely assumed to have been kidnapped by"}]},{"name":"Monkey","id":36,"relations":[{"personId":36,"otherPersonId":33,"description":"is currently imprisoned by"},{"personId":36,"otherPersonId":35,"description":"is accused of kidnapping the"},{"personId":36,"otherPersonId":37,"description":"is friends with his fellow"}]},{"name":"Monkeys","id":37,"relations":[{"personId":37,"otherPersonId":36,"description":"want to rescue their friend,"},{"personId":37,"otherPersonId":38,"description":"know the route through the woods to"}]},{"name":"Koume","id":38,"relations":[{"personId":38,"otherPersonId":42,"description":"works in the Swamp Tourist Center with"},{"personId":38,"otherPersonId":39,"description":"is the sister of"},{"personId":38,"otherPersonId":37,"description":"is stranded at a location known only by the"}]},{"name":"Kotake","id":39,"relations":[{"personId":39,"otherPersonId":38,"description":"is the sister of"}]},{"name":"Kaepora Gaebora","id":40,"relations":[{"personId":40,"otherPersonId":1,"description":"teaches the Song of Soaring to"}]},{"name":"Tingle","id":41,"relations":[{"personId":41,"otherPersonId":1,"description":"sells maps to"},{"personId":41,"otherPersonId":42,"description":"is the son of"}]},{"name":"Tingle's father","id":42,"relations":[{"personId":42,"otherPersonId":41,"description":"is the father of"},{"personId":42,"otherPersonId":38,"description":"works in the Swamp Tourist Center with"}]},{"name":"Part-time worker","id":43,"relations":[{"personId":43,"otherPersonId":11,"description":"works for"}]},{"name":"Bomb shop owner","id":44,"relations":[{"personId":44,"otherPersonId":45,"description":"is the son of"}]},{"name":"Old lady from the bomb shop","id":45,"relations":[{"personId":45,"otherPersonId":44,"description":"is the mother of"},{"personId":45,"otherPersonId":12,"description":"is mugged by"}]},{"name":"Bean seller","id":46,"relations":[{"personId":46,"otherPersonId":1,"description":"sells magic beans to"}]},{"name":"Banker","id":47,"relations":[{"personId":47,"otherPersonId":1,"description":"accepts custom from"}]},{"name":"Mikau","id":48,"relations":[{"personId":48,"otherPersonId":1,"description":"is healed by"},{"personId":48,"otherPersonId":55,"description":"is the partner of"},{"personId":48,"otherPersonId":70,"description":"is father to the"},{"personId":48,"otherPersonId":56,"description":"is the bandmate of"},{"personId":48,"otherPersonId":57,"description":"is the bandmate of"},{"personId":48,"otherPersonId":58,"description":"is the bandmate of"},{"personId":48,"otherPersonId":59,"description":"is in a band managed by"},{"personId":48,"otherPersonId":60,"description":"was mortally wounded by a group of pirates led by"}]},{"name":"Darmani","id":49,"relations":[{"personId":49,"otherPersonId":1,"description":"is healed by"},{"personId":49,"otherPersonId":72,"description":"is venerated by the"},{"personId":49,"otherPersonId":73,"description":"is considered heroic by the"}]},{"name":"the Deku Butler's son","id":50,"relations":[{"personId":50,"otherPersonId":1,"description":"is healed by"},{"personId":50,"otherPersonId":34,"description":"is the son of the"}]},{"name":"Pamela's father","id":51,"relations":[{"personId":51,"otherPersonId":1,"description":"is healed by"},{"personId":51,"otherPersonId":52,"description":"is the father of"}]},{"name":"Pamela","id":52,"relations":[{"personId":52,"otherPersonId":51,"description":"is the daughter of"}]},{"name":"Lulu","id":55,"relations":[{"personId":55,"otherPersonId":48,"description":"is the partner of"},{"personId":55,"otherPersonId":56,"description":"is the bandmate of"},{"personId":55,"otherPersonId":57,"description":"is the bandmate of"},{"personId":55,"otherPersonId":58,"description":"is the bandmate of"},{"personId":55,"otherPersonId":59,"description":"is in a band managed by"},{"personId":55,"otherPersonId":70,"description":"is mother to the"},{"personId":55,"otherPersonId":86,"description":"musically summons the"}]},{"name":"Evan","id":56,"relations":[{"personId":56,"otherPersonId":55,"description":"is the bandmate of"},{"personId":56,"otherPersonId":48,"description":"is the bandmate of"},{"personId":56,"otherPersonId":57,"description":"is the bandmate of"},{"personId":56,"otherPersonId":58,"description":"is the bandmate of"},{"personId":56,"otherPersonId":59,"description":"is in a band managed by"}]},{"name":"Japas","id":57,"relations":[{"personId":57,"otherPersonId":55,"description":"is the bandmate of"},{"personId":57,"otherPersonId":56,"description":"is the bandmate of"},{"personId":57,"otherPersonId":48,"description":"is the bandmate of"},{"personId":57,"otherPersonId":58,"description":"is the bandmate of"},{"personId":57,"otherPersonId":59,"description":"is in a band managed by"}]},{"name":"Tijo","id":58,"relations":[{"personId":58,"otherPersonId":55,"description":"is the bandmate of"},{"personId":58,"otherPersonId":56,"description":"is the bandmate of"},{"personId":58,"otherPersonId":57,"description":"is the bandmate of"},{"personId":58,"otherPersonId":48,"description":"is the bandmate of"},{"personId":58,"otherPersonId":59,"description":"is in a band managed by"}]},{"name":"Toto","id":59,"relations":[{"personId":59,"otherPersonId":55,"description":"manages a band that includes"},{"personId":59,"otherPersonId":56,"description":"manages a band that includes"},{"personId":59,"otherPersonId":57,"description":"manages a band that includes"},{"personId":59,"otherPersonId":58,"description":"manages a band that includes"},{"personId":59,"otherPersonId":48,"description":"manages a band that includes"},{"personId":59,"otherPersonId":23,"description":"is in carnival-related talks with"}]},{"name":"Aveil","id":60,"relations":[{"personId":60,"otherPersonId":70,"description":"leads a group of pirates who stole Lulu's"},{"personId":60,"otherPersonId":48,"description":"leads a group of pirates who have mortally wounded"},{"personId":60,"otherPersonId":76,"description":"leads a pirate group obsessed over by the"}]},{"name":"Flat","id":61,"relations":[{"personId":61,"otherPersonId":62,"description":"is the brother of"}]},{"name":"Sharp","id":62,"relations":[{"personId":62,"otherPersonId":61,"description":"is the brother of"},{"personId":62,"otherPersonId":2,"description":"was cursed to linger on as a ghost by"}]},{"name":"Keaton","id":63,"relations":[{"personId":63,"otherPersonId":1,"description":"quizzes"}]},{"name":"Bremor","id":64,"relations":[{"personId":64,"otherPersonId":25,"description":"is the son of"},{"personId":64,"otherPersonId":65,"description":"is the brother of"}]},{"name":"Brac","id":65,"relations":[{"personId":65,"otherPersonId":25,"description":"is the son of"},{"personId":65,"otherPersonId":64,"description":"is the brother of"}]},{"name":"Mack","id":66,"relations":[{"personId":66,"otherPersonId":25,"description":"works for"},{"personId":66,"otherPersonId":67,"description":"supervises the"}]},{"name":"Carpenters' apprentice","id":67,"relations":[{"personId":67,"otherPersonId":66,"description":"works for"}]},{"name":"Link the Goron","id":68,"relations":[{"personId":68,"otherPersonId":1,"description":"is impersonated by"},{"personId":68,"otherPersonId":5,"description":"stays at the inn managed by"}]},{"name":"???","id":69,"relations":[{"personId":69,"otherPersonId":1,"description":"accepts paper from"}]},{"name":"Zora eggs","id":70,"relations":[{"personId":70,"otherPersonId":55,"description":"are the children of"},{"personId":70,"otherPersonId":48,"description":"are the children of"},{"personId":70,"otherPersonId":60,"description":"were stolen by a group of pirates led by"},{"personId":70,"otherPersonId":82,"description":"are incubated by the"}]},{"name":"Receptionist","id":71,"relations":[{"personId":71,"otherPersonId":22,"description":"is the receptionist for"},{"personId":71,"otherPersonId":23,"description":"is the receptionist for"}]},{"name":"Goron Elder","id":72,"relations":[{"personId":72,"otherPersonId":73,"description":"is the father of"},{"personId":72,"otherPersonId":49,"description":"venerates"}]},{"name":"Goron Elder's son","id":73,"relations":[{"personId":73,"otherPersonId":72,"description":"is the son of"},{"personId":73,"otherPersonId":49,"description":"idolises"}]},{"name":"Gabora","id":74,"relations":[{"personId":74,"otherPersonId":1,"description":"forges new swords for"},{"personId":74,"otherPersonId":75,"description":"is left to do all the work by"}]},{"name":"Zubora","id":75,"relations":[{"personId":75,"otherPersonId":1,"description":"accepts commissions from"},{"personId":75,"otherPersonId":74,"description":"lazes about and leaves all the work to"}]},{"name":"Fisherman","id":76,"relations":[{"personId":76,"otherPersonId":60,"description":"obsesses over the pirate group led by"},{"personId":76,"otherPersonId":77,"description":"owns the"}]},{"name":"Seahorse","id":77,"relations":[{"personId":77,"otherPersonId":76,"description":"is owned by"},{"personId":77,"otherPersonId":78,"description":"is in a relationship with the"}]},{"name":"Pinnacle Rock Seahorse","id":78,"relations":[{"personId":78,"otherPersonId":77,"description":"is in a relationship with"}]},{"name":"Beaver brothers","id":79,"relations":[{"personId":79,"otherPersonId":1,"description":"race"}]},{"name":"Mamamu Yan","id":80,"relations":[{"personId":80,"otherPersonId":1,"description":"accepts dog race bets from"}]},{"name":"Grog","id":81,"relations":[{"personId":81,"otherPersonId":1,"description":"is able to watch his chicks grow up thanks to"}]},{"name":"Marine Research Lab Professor","id":82,"relations":[{"personId":82,"otherPersonId":70,"description":"incubates the"}]},{"name":"Captain Keeta","id":83,"relations":[{"personId":83,"otherPersonId":1,"description":"is dismissed by"}]},{"name":"Shiro","id":84,"relations":[{"personId":84,"otherPersonId":1,"description":"gives the Stone Mask to"}]},{"name":"Poe Collector","id":85,"relations":[{"personId":85,"otherPersonId":1,"description":"bars access to Ikana Canyon from"}]},{"name":"Giant turtle","id":86,"relations":[{"personId":86,"otherPersonId":55,"description":"is musically summoned by"}]}]
+[
+{"name":"Happy Mask Salesman","id":0,"relations":[
+{"personId":0,"otherPersonId":1,"description":"assigns a mask retrieval mission to"},
+{"personId":0,"otherPersonId":2,"description":"was mugged by"}]},
+{"name":"Link","id":1,"relations":[
+{"personId":1,"otherPersonId":0,"description":"receives a mask retrieval mission from the"},
+{"personId":1,"otherPersonId":3,"description":"is begrudgingly accompanied by"},
+{"personId":1,"otherPersonId":84,"description":"is given the Stone Mask by"},
+{"personId":1,"otherPersonId":12,"description":"infiltrates the hideout of"},
+{"personId":1,"otherPersonId":18,"description":"heals the soul of"},
+{"personId":1,"otherPersonId":48,"description":"heals the soul of"},
+{"personId":1,"otherPersonId":49,"description":"heals the soul of"},
+{"personId":1,"otherPersonId":50,"description":"takes the form of"},
+{"personId":1,"otherPersonId":51,"description":"heals the soul of"},
+{"personId":1,"otherPersonId":6,"description":"infiltrates Sakon's hideout with"},
+{"personId":1,"otherPersonId":63,"description":"is given a quiz by"},
+{"personId":1,"otherPersonId":21,"description":"defeats"},
+{"personId":1,"otherPersonId":29,"description":"frees"},
+{"personId":1,"otherPersonId":34,"description":"is challenged to a race by the"},
+{"personId":1,"otherPersonId":41,"description":"buys maps from"},
+{"personId":1,"otherPersonId":40,"description":"is taught the Song of Soaring by"},
+{"personId":1,"otherPersonId":46,"description":"is sold magic beans by the"},
+{"personId":1,"otherPersonId":47,"description":"banks with the"},
+{"personId":1,"otherPersonId":68,"description":"impersonates"},
+{"personId":1,"otherPersonId":69,"description":"gives paper to"},
+{"personId":1,"otherPersonId":75,"description":"commissions new swords from"},
+{"personId":1,"otherPersonId":80,"description":"bets on a dog race run by"},
+{"personId":1,"otherPersonId":81,"description":"speeds up the growth of chicks owned by"},
+{"personId":1,"otherPersonId":79,"description":"races the"},
+{"personId":1,"otherPersonId":83,"description":"dismisses"},
+{"personId":1,"otherPersonId":85,"description":"is prevented from entering Ikana Canyon by"}]},
+{"name":"Skull Kid","id":2,"relations":[
+{"personId":2,"otherPersonId":0,"description":"stole an ancient cursed mask from the"},
+{"personId":2,"otherPersonId":3,"description":"used to be friends with"},
+{"personId":2,"otherPersonId":4,"description":"used to be friends with"},
+{"personId":2,"otherPersonId":6,"description":"has set a curse on"},
+{"personId":2,"otherPersonId":31,"description":"is a former member of the"},
+{"personId":2,"otherPersonId":28,"description":"is possessed by"},
+{"personId":2,"otherPersonId":29,"description":"believes he was betrayed by"},
+{"personId":2,"otherPersonId":62,"description":"has set a curse on"}]},
+{"name":"Tatl","id":3,"relations":[
+{"personId":3,"otherPersonId":2,"description":"used to be friends with"},
+{"personId":3,"otherPersonId":1,"description":"begrudgingly accompanies"},
+{"personId":3,"otherPersonId":4,"description":"is sister to"}]},
+{"name":"Tael","id":4,"relations":[
+{"personId":4,"otherPersonId":3,"description":"is the brother of"},
+{"personId":4,"otherPersonId":2,"description":"used to be friends with"}]},
+{"name":"Anju","id":5,"relations":[
+{"personId":5,"otherPersonId":6,"description":"is engaged to"},
+{"personId":5,"otherPersonId":10,"description":"is friends with"},
+{"personId":5,"otherPersonId":9,"description":"is the daughter of"},
+{"personId":5,"otherPersonId":8,"description":"is the granddaughter of"},
+{"personId":5,"otherPersonId":7,"description":"is the daughter of"},
+{"personId":5,"otherPersonId":27,"description":"receives a letter from the"},
+{"personId":5,"otherPersonId":68,"description":"accepts custom from"}]},
+{"name":"Kafei","id":6,"relations":[
+{"personId":6,"otherPersonId":5,"description":"is engaged to"},
+{"personId":6,"otherPersonId":2,"description":"was transformed into a child by"},
+{"personId":6,"otherPersonId":31,"description":"is a former member of the"},
+{"personId":6,"otherPersonId":7,"description":"is believed to have run off with Cremia by"},
+{"personId":6,"otherPersonId":11,"description":"is being sheltered by"},
+{"personId":6,"otherPersonId":12,"description":"had his wedding mask stolen by"},
+{"personId":6,"otherPersonId":1,"description":"infiltrates Sakon's hideout with"},
+{"personId":6,"otherPersonId":22,"description":"is the son of"},
+{"personId":6,"otherPersonId":23,"description":"is the son of"},
+{"personId":6,"otherPersonId":27,"description":"receives a letter from the"}]},
+{"name":"Anju's mother","id":7,"relations":[
+{"personId":7,"otherPersonId":8,"description":"is the daughter-in-law of"},
+{"personId":7,"otherPersonId":5,"description":"is mother to"},
+{"personId":7,"otherPersonId":9,"description":"was wife to"},
+{"personId":7,"otherPersonId":10,"description":"believes Kafei ran off with"},
+{"personId":7,"otherPersonId":6,"description":"believes Cremia ran off with"}]},
+{"name":"Anju's grandmother","id":8,"relations":[
+{"personId":8,"otherPersonId":5,"description":"is grandmother to"},
+{"personId":8,"otherPersonId":9,"description":"was mother to"},
+{"personId":8,"otherPersonId":7,"description":"is the mother-in-law of"},
+{"personId":8,"otherPersonId":22,"description":"was a teacher of"}]},
+{"name":"Tortus","id":9,"relations":[
+{"personId":9,"otherPersonId":5,"description":"was the father of"},
+{"personId":9,"otherPersonId":8,"description":"was the son of"},
+{"personId":9,"otherPersonId":7,"description":"was the husband of"}]},
+{"name":"Cremia","id":10,"relations":[
+{"personId":10,"otherPersonId":5,"description":"is friends with"},
+{"personId":10,"otherPersonId":7,"description":"is believed to have run off with Kafei by"},
+{"personId":10,"otherPersonId":19,"description":"is terrorised by the"},
+{"personId":10,"otherPersonId":21,"description":"had her cows stolen by"},
+{"personId":10,"otherPersonId":20,"description":"is the older sister of"}]},
+{"name":"Curiosity Shop Owner","id":11,"relations":[
+{"personId":11,"otherPersonId":6,"description":"offers protection to"},
+{"personId":11,"otherPersonId":12,"description":"is reluctant to purchase goods from"},
+{"personId":11,"otherPersonId":43,"description":"employs the"}]},
+{"name":"Sakon","id":12,"relations":[
+{"personId":12,"otherPersonId":11,"description":"feels he is being ripped off by"},
+{"personId":12,"otherPersonId":6,"description":"has stolen a wedding mask from"},
+{"personId":12,"otherPersonId":1,"description":"has his hideout infiltrated by"},
+{"personId":12,"otherPersonId":45,"description":"steals the bomb bag from the"}]},
+{"name":"Gorman","id":13,"relations":[
+{"personId":13,"otherPersonId":14,"description":"leads a circus troupe employing"},
+{"personId":13,"otherPersonId":15,"description":"leads a circus troupe employing"},
+{"personId":13,"otherPersonId":16,"description":"leads a circus troupe employing"},
+{"personId":13,"otherPersonId":17,"description":"leads a circus troupe employing"},
+{"personId":13,"otherPersonId":19,"description":"is the third brother to the two"},
+{"personId":13,"otherPersonId":23,"description":"has his act cancelled by"},
+{"personId":13,"otherPersonId":26,"description":"drinks at the establishment of"}]},
+{"name":"Guru-Guru","id":14,"relations":[
+{"personId":14,"otherPersonId":13,"description":"is in a circus troupe led by"}]},
+{"name":"Judo Rosa","id":15,"relations":[
+{"personId":15,"otherPersonId":13,"description":"is a dancer in a circus troupe led by"},
+{"personId":15,"otherPersonId":16,"description":"is the twin sister of"}]},
+{"name":"Marilla Rosa","id":16,"relations":[
+{"personId":16,"otherPersonId":13,"description":"is a dancer in a circus troupe led by"},
+{"personId":16,"otherPersonId":15,"description":"is the twin sister of"}]},
+{"name":"Twin Jugglers","id":17,"relations":[
+{"personId":17,"otherPersonId":13,"description":"juggle for a circus troupe led by"}]},
+{"name":"Kamaro","id":18,"relations":[
+{"personId":18,"otherPersonId":1,"description":"is healed by"}]},
+{"name":"Gorman Bros.","id":19,"relations":[
+{"personId":19,"otherPersonId":13,"description":"are the other two brothers of"},
+{"personId":19,"otherPersonId":10,"description":"are terrorising"},
+{"personId":19,"otherPersonId":89,"description":"wear masks imitating the"}]},
+{"name":"Romani","id":20,"relations":[
+{"personId":20,"otherPersonId":21,"description":"is temporarily abducted by"},
+{"personId":20,"otherPersonId":10,"description":"is the younger sister of"}]},
+{"name":"the Aliens","id":21,"relations":[
+{"personId":21,"otherPersonId":20,"description":"temporarily abduct"},
+{"personId":21,"otherPersonId":10,"description":"are stealing cows from"},
+{"personId":21,"otherPersonId":1,"description":"are defeated by"}]},
+{"name":"Mayor Dotour","id":22,"relations":[
+{"personId":22,"otherPersonId":8,"description":"was taught by"},
+{"personId":22,"otherPersonId":6,"description":"is father to"},
+{"personId":22,"otherPersonId":23,"description":"is husband to"},
+{"personId":22,"otherPersonId":24,"description":"is advised by"},
+{"personId":22,"otherPersonId":25,"description":"is continually berated by"},
+{"personId":22,"otherPersonId":71,"description":"employs"}]},
+{"name":"Madame Aroma","id":23,"relations":[
+{"personId":23,"otherPersonId":6,"description":"is mother to"},
+{"personId":23,"otherPersonId":22,"description":"is wife to"},
+{"personId":23,"otherPersonId":13,"description":"regretfully cancels the act of"},
+{"personId":23,"otherPersonId":26,"description":"drinks at the establishment of"},
+{"personId":23,"otherPersonId":27,"description":"employs the"},
+{"personId":23,"otherPersonId":59,"description":"is in carnival-related talks with"},
+{"personId":23,"otherPersonId":71,"description":"employs"}]},
+{"name":"Viscen","id":24,"relations":[
+{"personId":24,"otherPersonId":22,"description":"is advisor to"}]},
+{"name":"Mutoh","id":25,"relations":[
+{"personId":25,"otherPersonId":22,"description":"continually berates"},
+{"personId":25,"otherPersonId":64,"description":"is father to"},
+{"personId":25,"otherPersonId":65,"description":"is father to"},
+{"personId":25,"otherPersonId":66,"description":"employs"}]},
+{"name":"Mr Barten","id":26,"relations":[
+{"personId":26,"otherPersonId":13,"description":"serves"},
+{"personId":26,"otherPersonId":23,"description":"serves"}]},
+{"name":"Postman","id":27,"relations":[
+{"personId":27,"otherPersonId":5,"description":"delivers a letter to"},
+{"personId":27,"otherPersonId":6,"description":"delivers a letter to"},
+{"personId":27,"otherPersonId":23,"description":"is employed by"},
+{"personId":27,"otherPersonId":27,"description":"delivers a letter to"}]},
+{"name":"Majora","id":28,"relations":[
+{"personId":28,"otherPersonId":2,"description":"possesses"},
+{"personId":28,"otherPersonId":91,"description":"controls"}]},
+{"name":"the Four Giants","id":29,"relations":[
+{"personId":29,"otherPersonId":2,"description":"still consider themselves friends to"},
+{"personId":29,"otherPersonId":1,"description":"are freed by"}]},
+{"name":"Jim","id":30,"relations":[
+{"personId":30,"otherPersonId":31,"description":"is the leader of the"}]},
+{"name":"the Bombers","id":31,"relations":[
+{"personId":31,"otherPersonId":6,"description":"formerly included"},
+{"personId":31,"otherPersonId":2,"description":"formerly included"},
+{"personId":31,"otherPersonId":30,"description":"are led by"},
+{"personId":31,"otherPersonId":32,"description":"know"}]},
+{"name":"Professor Shikashi","id":32,"relations":[
+{"personId":32,"otherPersonId":31,"description":"is familiar with"}]},
+{"name":"Deku King","id":33,"relations":[
+{"personId":33,"otherPersonId":35,"description":"is the father of"},
+{"personId":33,"otherPersonId":34,"description":"employs the"},
+{"personId":33,"otherPersonId":36,"description":"imprisons the"}]},
+{"name":"Deku Butler","id":34,"relations":[
+{"personId":34,"otherPersonId":1,"description":"is reminded of his son by"},
+{"personId":34,"otherPersonId":50,"description":"is the father of"},
+{"personId":34,"otherPersonId":33,"description":"works for the"}]},
+{"name":"Deku Princess","id":35,"relations":[
+{"personId":35,"otherPersonId":33,"description":"is the daughter of"},
+{"personId":35,"otherPersonId":36,"description":"is falsely assumed to have been kidnapped by"},
+{"personId":35,"otherPersonId":91,"description":"was imprisoned by"}]},
+{"name":"Monkey","id":36,"relations":[
+{"personId":36,"otherPersonId":33,"description":"is currently imprisoned by"},
+{"personId":36,"otherPersonId":35,"description":"is accused of kidnapping the"},
+{"personId":36,"otherPersonId":37,"description":"is friends with his fellow"}]},
+{"name":"Monkeys","id":37,"relations":[
+{"personId":37,"otherPersonId":36,"description":"want to rescue their friend,"},
+{"personId":37,"otherPersonId":38,"description":"know the route through the woods to"}]},
+{"name":"Koume","id":38,"relations":[
+{"personId":38,"otherPersonId":42,"description":"works in the Swamp Tourist Center with"},
+{"personId":38,"otherPersonId":39,"description":"is the sister of"},
+{"personId":38,"otherPersonId":37,"description":"is stranded at a location known only by the"}]},
+{"name":"Kotake","id":39,"relations":[
+{"personId":39,"otherPersonId":38,"description":"is the sister of"}]},
+{"name":"Kaepora Gaebora","id":40,"relations":[
+{"personId":40,"otherPersonId":1,"description":"teaches the Song of Soaring to"}]},
+{"name":"Tingle","id":41,"relations":[
+{"personId":41,"otherPersonId":1,"description":"sells maps to"},
+{"personId":41,"otherPersonId":42,"description":"is the son of"}]},
+{"name":"Tingle's father","id":42,"relations":[
+{"personId":42,"otherPersonId":41,"description":"is the father of"},
+{"personId":42,"otherPersonId":38,"description":"works in the Swamp Tourist Center with"}]},
+{"name":"Part-time worker","id":43,"relations":[
+{"personId":43,"otherPersonId":11,"description":"works for"}]},
+{"name":"Bomb shop owner","id":44,"relations":[
+{"personId":44,"otherPersonId":45,"description":"is the son of"},
+{"personId":44,"otherPersonId":88,"description":"works in the bomb shop with"}]},
+{"name":"Old lady from the bomb shop","id":45,"relations":[
+{"personId":45,"otherPersonId":44,"description":"is the mother of"},
+{"personId":45,"otherPersonId":12,"description":"is mugged by"}]},
+{"name":"Bean seller","id":46,"relations":[
+{"personId":46,"otherPersonId":1,"description":"sells magic beans to"}]},
+{"name":"Banker","id":47,"relations":[
+{"personId":47,"otherPersonId":1,"description":"accepts custom from"}]},
+{"name":"Mikau","id":48,"relations":[
+{"personId":48,"otherPersonId":1,"description":"is healed by"},
+{"personId":48,"otherPersonId":55,"description":"is the partner of"},
+{"personId":48,"otherPersonId":70,"description":"is father to the"},
+{"personId":48,"otherPersonId":56,"description":"is the bandmate of"},
+{"personId":48,"otherPersonId":57,"description":"is the bandmate of"},
+{"personId":48,"otherPersonId":58,"description":"is the bandmate of"},
+{"personId":48,"otherPersonId":59,"description":"is in a band managed by"},
+{"personId":48,"otherPersonId":60,"description":"was mortally wounded by a group of pirates led by"}]},
+{"name":"Darmani","id":49,"relations":[
+{"personId":49,"otherPersonId":1,"description":"is healed by"},
+{"personId":49,"otherPersonId":72,"description":"is venerated by the"},
+{"personId":49,"otherPersonId":73,"description":"is considered heroic by the"}]},
+{"name":"the Deku Butler's son","id":50,"relations":[
+{"personId":50,"otherPersonId":1,"description":"is healed by"},
+{"personId":50,"otherPersonId":34,"description":"is the son of the"}]},
+{"name":"Pamela's father","id":51,"relations":[
+{"personId":51,"otherPersonId":1,"description":"is healed by"},
+{"personId":51,"otherPersonId":52,"description":"is the father of"},
+{"personId":51,"otherPersonId":89,"description":"has studied"}]},
+{"name":"Pamela","id":52,"relations":[
+{"personId":52,"otherPersonId":51,"description":"is the daughter of"}]},
+{"name":"Lulu","id":55,"relations":[
+{"personId":55,"otherPersonId":48,"description":"is the partner of"},
+{"personId":55,"otherPersonId":56,"description":"is the bandmate of"},
+{"personId":55,"otherPersonId":57,"description":"is the bandmate of"},
+{"personId":55,"otherPersonId":58,"description":"is the bandmate of"},
+{"personId":55,"otherPersonId":59,"description":"is in a band managed by"},
+{"personId":55,"otherPersonId":70,"description":"is mother to the"},
+{"personId":55,"otherPersonId":86,"description":"musically summons the"}]},
+{"name":"Evan","id":56,"relations":[
+{"personId":56,"otherPersonId":55,"description":"is the bandmate of"},
+{"personId":56,"otherPersonId":48,"description":"is the bandmate of"},
+{"personId":56,"otherPersonId":57,"description":"is the bandmate of"},
+{"personId":56,"otherPersonId":58,"description":"is the bandmate of"},
+{"personId":56,"otherPersonId":59,"description":"is in a band managed by"}]},
+{"name":"Japas","id":57,"relations":[
+{"personId":57,"otherPersonId":55,"description":"is the bandmate of"},
+{"personId":57,"otherPersonId":56,"description":"is the bandmate of"},
+{"personId":57,"otherPersonId":48,"description":"is the bandmate of"},
+{"personId":57,"otherPersonId":58,"description":"is the bandmate of"},
+{"personId":57,"otherPersonId":59,"description":"is in a band managed by"}]},
+{"name":"Tijo","id":58,"relations":[
+{"personId":58,"otherPersonId":55,"description":"is the bandmate of"},
+{"personId":58,"otherPersonId":56,"description":"is the bandmate of"},
+{"personId":58,"otherPersonId":57,"description":"is the bandmate of"},
+{"personId":58,"otherPersonId":48,"description":"is the bandmate of"},
+{"personId":58,"otherPersonId":59,"description":"is in a band managed by"}]},
+{"name":"Toto","id":59,"relations":[
+{"personId":59,"otherPersonId":55,"description":"manages a band that includes"},
+{"personId":59,"otherPersonId":56,"description":"manages a band that includes"},
+{"personId":59,"otherPersonId":57,"description":"manages a band that includes"},
+{"personId":59,"otherPersonId":58,"description":"manages a band that includes"},
+{"personId":59,"otherPersonId":48,"description":"manages a band that includes"},
+{"personId":59,"otherPersonId":23,"description":"is in carnival-related talks with"}]},
+{"name":"Aveil","id":60,"relations":[
+{"personId":60,"otherPersonId":70,"description":"leads a group of pirates who stole Lulu's"},
+{"personId":60,"otherPersonId":48,"description":"leads a group of pirates who have mortally wounded"},
+{"personId":60,"otherPersonId":76,"description":"leads a pirate group obsessed over by the"}]},
+{"name":"Flat","id":61,"relations":[
+{"personId":61,"otherPersonId":62,"description":"is the brother of"}]},
+{"name":"Sharp","id":62,"relations":[
+{"personId":62,"otherPersonId":61,"description":"is the brother of"},
+{"personId":62,"otherPersonId":2,"description":"was cursed to linger on as a ghost by"}]},
+{"name":"Keaton","id":63,"relations":[
+{"personId":63,"otherPersonId":1,"description":"quizzes"}]},
+{"name":"Bremor","id":64,"relations":[
+{"personId":64,"otherPersonId":25,"description":"is the son of"},
+{"personId":64,"otherPersonId":65,"description":"is the brother of"}]},
+{"name":"Brac","id":65,"relations":[
+{"personId":65,"otherPersonId":25,"description":"is the son of"},
+{"personId":65,"otherPersonId":64,"description":"is the brother of"}]},
+{"name":"Mack","id":66,"relations":[
+{"personId":66,"otherPersonId":25,"description":"works for"},
+{"personId":66,"otherPersonId":67,"description":"supervises the"}]},
+{"name":"Carpenters' apprentice","id":67,"relations":[
+{"personId":67,"otherPersonId":66,"description":"works for"}]},
+{"name":"Link the Goron","id":68,"relations":[
+{"personId":68,"otherPersonId":1,"description":"is impersonated by"},
+{"personId":68,"otherPersonId":5,"description":"stays at the inn managed by"}]},
+{"name":"???","id":69,"relations":[
+{"personId":69,"otherPersonId":1,"description":"accepts paper from"}]},
+{"name":"Zora eggs","id":70,"relations":[
+{"personId":70,"otherPersonId":55,"description":"are the children of"},
+{"personId":70,"otherPersonId":48,"description":"are the children of"},
+{"personId":70,"otherPersonId":60,"description":"were stolen by a group of pirates led by"},
+{"personId":70,"otherPersonId":82,"description":"are incubated by the"}]},
+{"name":"Receptionist","id":71,"relations":[
+{"personId":71,"otherPersonId":22,"description":"is the receptionist for"},
+{"personId":71,"otherPersonId":23,"description":"is the receptionist for"}]},
+{"name":"Goron Elder","id":72,"relations":[
+{"personId":72,"otherPersonId":73,"description":"is the father of"},
+{"personId":72,"otherPersonId":49,"description":"venerates"},
+{"personId":72,"otherPersonId":87,"description":"lives in Goron Village with"}]},
+{"name":"Goron Elder's son","id":73,"relations":[
+{"personId":73,"otherPersonId":72,"description":"is the son of"},
+{"personId":73,"otherPersonId":49,"description":"idolises"},
+{"personId":73,"otherPersonId":87,"description":"lives in Goron Village with"}]},
+{"name":"Gabora","id":74,"relations":[
+{"personId":74,"otherPersonId":75,"description":"is left to do all the work by"}]},
+{"name":"Zubora","id":75,"relations":[
+{"personId":75,"otherPersonId":1,"description":"accepts commissions from"},
+{"personId":75,"otherPersonId":74,"description":"lazes about and leaves all the work to"}]},
+{"name":"Fisherman","id":76,"relations":[
+{"personId":76,"otherPersonId":60,"description":"obsesses over the pirate group led by"},
+{"personId":76,"otherPersonId":77,"description":"owns the"}]},
+{"name":"Seahorse","id":77,"relations":[
+{"personId":77,"otherPersonId":76,"description":"is owned by"},
+{"personId":77,"otherPersonId":78,"description":"is in a relationship with the"}]},
+{"name":"Pinnacle Rock Seahorse","id":78,"relations":[
+{"personId":78,"otherPersonId":77,"description":"is in a relationship with"}]},
+{"name":"Beaver bros.","id":79,"relations":[
+{"personId":79,"otherPersonId":1,"description":"race"}]},
+{"name":"Mamamu Yan","id":80,"relations":[
+{"personId":80,"otherPersonId":1,"description":"accepts dog race bets from"}]},
+{"name":"Grog","id":81,"relations":[
+{"personId":81,"otherPersonId":1,"description":"is able to watch his chicks grow up thanks to"}]},
+{"name":"Marine Research Lab Professor","id":82,"relations":[
+{"personId":82,"otherPersonId":70,"description":"incubates the"}]},
+{"name":"Captain Keeta","id":83,"relations":[
+{"personId":83,"otherPersonId":1,"description":"is dismissed by"}]},
+{"name":"Shiro","id":84,"relations":[
+{"personId":84,"otherPersonId":1,"description":"gives the Stone Mask to"}]},
+{"name":"Poe Collector","id":85,"relations":[
+{"personId":85,"otherPersonId":1,"description":"bars access to Ikana Canyon from"}]},
+{"name":"Giant turtle","id":86,"relations":[
+{"personId":86,"otherPersonId":55,"description":"is musically summoned by"}]},
+{"name":"Medigoron","id":87,"relations":[
+{"personId":87,"otherPersonId":72,"description":"lives in Goron Village with"},
+{"personId":87,"otherPersonId":73,"description":"lives in Goron Village with"},
+{"personId":87,"otherPersonId":88,"description":"is a business associate of"}]},
+{"name":"Bomb shop goron","id":88,"relations":[
+{"personId":88,"otherPersonId":87,"description":"is a business associate of"},
+{"personId":88,"otherPersonId":44,"description":"works in the bomb shop with"}]},
+{"name":"the Garo","id":89,"relations":[
+{"personId":89,"otherPersonId":51,"description":"have been studied by"},
+{"personId":89,"otherPersonId":90,"description":"follow the teachings of the"},
+{"personId":89,"otherPersonId":19,"description":"wear masks imitated by the"}]},
+{"name":"Garo Master","id":90,"relations":[
+{"personId":90,"otherPersonId":89,"description":"is the leader of"}]},
+{"name":"Odolwa","id":91,"relations":[
+{"personId":91,"otherPersonId":35,"description":"imprisoned the"},
+{"personId":91,"otherPersonId":28,"description":"is under the control of"}]}
+]

@@ -1,4 +1,3 @@
-import './style.css';
 import majora from './majora.json';
 import vampire from './vampire.json';
 import hamlet from './hamlet.json';
@@ -8,6 +7,7 @@ let people = [];
 let mostRecentlyAssignedID = 0;
 let currentFocalPerson = null;
 let spiderDiagramAvoidPeople = [];
+let spiderDiagramAvoidRelationText = [];
 let roles = [];
 
 let canvas = document.getElementById("canvas");
@@ -20,7 +20,7 @@ let canvasPanY = 0; //is set to its default elsewhere
 
 let colouredConnectionTexts = {};
 let USE_COLOURED_CONNECTION_TEXTS = false;
-let ALWAYS_SETTLE_FOR_VACANT = true;
+let ALWAYS_SETTLE_FOR_VACANT = false;
 let DRAW_ANGLED_NAME_TEXT = false;
 
 window.addEventListener("resize", (event) => {ctx.canvas.width,ctx.canvas.height});
@@ -86,7 +86,7 @@ function reset(){
   roles = [];
   colouredConnectionTexts = {};
   spiderDiagramAvoidPeople = [];
-  ALWAYS_SETTLE_FOR_VACANT = true;
+  ALWAYS_SETTLE_FOR_VACANT = false;
   USE_COLOURED_CONNECTION_TEXTS = true;
 }
 
@@ -157,7 +157,6 @@ async function notificationCooldown(notification){
   notification.remove();
 }
 
-
 function loadAllFromJsonString(jsonString){
   loadAllFromJson(JSON.parse(jsonString));
 }
@@ -172,6 +171,7 @@ function loadAllFromJson(obj){
     console.log("Loading version 2 file")
     loadFromVersion2JsonFile(obj);
    }
+
    setupAfterLoad();
 }
 
@@ -195,6 +195,10 @@ function loadFromVersion2JsonFile(obj){ //loads from a V2 json file - where the 
   let jsonPeople = obj.jsonPeople;
   let jsonRoles = obj.jsonRoles;
   let jsonSettings = obj.jsonSettings;
+
+  USE_COLOURED_CONNECTION_TEXTS = false;
+  DRAW_ANGLED_NAME_TEXT = false;
+  ALWAYS_SETTLE_FOR_VACANT = true;
 
   if (jsonSettings != null){
     Object.keys(jsonSettings).forEach((key) => {
@@ -269,7 +273,6 @@ function makeRoleFromJSONRole(jsonRoleObj){
   return r;
 }
 
-
 function getAllAsJSON(){
   let output = {};
 
@@ -318,23 +321,26 @@ function recalculateSpiderDiagram(){
   let maxLevel = -1;
   let slotsAtEachLevel = {};
 
-  let MONITOR_NODES_THAT_COULD_NOT_BE_REACHED = true;
+  let MONITOR_NODES_THAT_COULD_NOT_BE_REACHED = false;
 
   let couldNotBeReached = [];
 
   people.forEach((otherPerson) => {
 
-	 if (spiderDiagramAvoidPeople.includes(otherPerson)){
-		 return;
-	 }
-	  
     let level = currentFocalPerson.getDegreesOfSeparationFrom(otherPerson, spiderDiagramAvoidPeople);
-	
+
 	  if (level == undefined){
+      otherPerson.positionOnSpiderDiagram = [0,0]
+      otherPerson.updateConnectionLinePositions(null);
       if (MONITOR_NODES_THAT_COULD_NOT_BE_REACHED){
         couldNotBeReached.push(otherPerson);
-      }      
+      }
+      return;
 	  }
+
+    if (spiderDiagramAvoidPeople.includes(otherPerson)){
+      return;
+    }
 		
     if (level > maxLevel){
       maxLevel = level;
@@ -389,6 +395,9 @@ function recalculateSpiderDiagram(){
         personWebContext.isAddedToWeb = true;
 
         personWebContext.p.relations.forEach((relation) => {
+          if (spiderDiagramAvoidRelationText.includes(relation.description)){
+            return;
+          }
           for (let i = 0; i < peopleWebContexts.length; i++){
             let otherPersonWebCtx = peopleWebContexts[i];
             if (otherPersonWebCtx.p == relation.getOtherPerson()){ //if the other person in this relationship is already added to the web, don't add them again. The return returns the forEach iteration in the relations array, not the wider function.
@@ -430,7 +439,9 @@ function recalculateSpiderDiagram(){
               closestVacantSlot.occupant = personWebContext;
           } else {  //something else is in the slot that we want :( check its claim and swap if necessary
             let competingOccupant = closestOccupiedSlot.occupant;
-            if (closestOccupiedSlot.distOfOccupantToPrev <= closestOccupiedDist || ALWAYS_SETTLE_FOR_VACANT){ //they have a better claim, so we settle for the vacant slot
+            personWebContext.p.positionOnSpiderDiagram = closestOccupiedSlot.position; //we temporarily move our candidate to the occupied slot so that we can check the distance etc
+            if (ALWAYS_SETTLE_FOR_VACANT || closestOccupiedSlot.distOfOccupantToPrev <= closestOccupiedDist){ 
+              //the existing person has a better claim, so we settle for the vacant slot
               personWebContext.p.positionOnSpiderDiagram = closestVacantSlot.position;
               closestVacantSlot.distOfOccupantToPrev = closestVacantDist;
               closestVacantSlot.occupant = personWebContext;
@@ -451,6 +462,18 @@ function recalculateSpiderDiagram(){
         personWebContext.p.updateConnectionLinePositions(personWebContext.prevPersonInWeb);
       }
     });
+  }
+}
+
+function getAngleDifferenceToPrev(personWebContext){
+  if (personWebContext.prevPersonInWeb == null){
+    return 0;
+  }
+  if (personWebContext.prevPersonInWeb.connectionTextAngle == null){
+    return personWebContext.p.connectionTextAngle;
+  }
+  else {
+    return Math.abs(personWebContext.p.connectionTextAngle - personWebContext.prevPersonInWeb.connectionTextAngle);
   }
 }
 
@@ -526,14 +549,37 @@ function getPersonWithFewestLevels(){
 
   let fewestPerson = people[0];
   let fewest = 99999999;
+  let fewestPersonValidImmediateRelationsCount = 0;
 
   people.forEach((person) => {
-    if (person.relations.length > 1){
+    if (spiderDiagramAvoidPeople.includes(person)){
+      return;
+    }
+
+    let validRelations = [];
+
+    person.relations.forEach((relation) => {
+      if (!spiderDiagramAvoidPeople.includes(relation.getOtherPerson())){
+        validRelations.push(relation)
+      }
+    });
+
+    if (validRelations.length > 1){
+      
       let maxLevelWithThisPersonAtCentre = person.getDegreesOfSeparationFrom(null, spiderDiagramAvoidPeople, true);
 
-      if (maxLevelWithThisPersonAtCentre != 0 && maxLevelWithThisPersonAtCentre < fewest){
-        fewest = maxLevelWithThisPersonAtCentre;
-        fewestPerson = person;
+      if (maxLevelWithThisPersonAtCentre != 0 && maxLevelWithThisPersonAtCentre <= fewest){
+        if (maxLevelWithThisPersonAtCentre == fewest){
+          if (validRelations.length > fewestPersonValidImmediateRelationsCount){ //if we find ourselves tying with another person with an equally low number of levels, decide which one takes precedent by how many immediate connections it has (more = better, because it spreads the nodes out)
+            fewest = maxLevelWithThisPersonAtCentre;
+            fewestPerson = person;
+            fewestPersonValidImmediateRelationsCount = validRelations.length;
+          }
+        } else {
+          fewest = maxLevelWithThisPersonAtCentre;
+          fewestPerson = person;
+          fewestPersonValidImmediateRelationsCount = validRelations.length;
+        }
       }
     }
   });
@@ -649,7 +695,10 @@ class Person {
 
   getRelationsDiv(){
     let ul = document.createElement("ul");
-    this.relations.forEach((relation) => { 
+    this.relations.forEach((relation) => {
+      if (spiderDiagramAvoidPeople.includes(relation.getOtherPerson())){
+        return;
+      }
       let li = document.createElement("li");
       let a = document.createElement("a");
       a.innerHTML = relation.description + " <strong>" + (relation.getOtherPerson() == this ? "themselves" : relation.getOtherPerson().name) + "</strong>";
@@ -815,14 +864,15 @@ class Person {
         //Expand this person with the lowest score
 
         getPersonById(lowest_person).relations.forEach((relation) => {
-            if (!Object.keys(peopleAndCounts).includes(relation.getOtherPersonId()+"") && !avoidPeople.includes(relation.getOtherPerson())){
+          if (spiderDiagramAvoidRelationText.includes(relation.description)){
+            return;
+          } else if (!Object.keys(peopleAndCounts).includes(relation.getOtherPersonId()+"") && !avoidPeople.includes(relation.getOtherPerson())){
               peopleAndCounts[relation.getOtherPerson().id] = lowest + 1; //set the score for the next person we're going to expand
               peopleAndPrevPeople[relation.getOtherPerson().id] = getPersonById(lowest_person); //set the prev person
-           
               if (relation.getOtherPerson() == targetPerson){
                 targetFound = true;
               }
-            }
+          }
         })
 
         if (lowest > maxLevelEncountered){
