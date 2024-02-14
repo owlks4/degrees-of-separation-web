@@ -9,6 +9,7 @@ let currentFocalPerson = null;
 let spiderDiagramAvoidPeople = [];
 let spiderDiagramAvoidRelationText = [];
 let roles = [];
+let downloadImageAnchorTag = document.createElement("a");
 
 let canvas = document.getElementById("canvas");
 
@@ -77,8 +78,6 @@ canvas.addEventListener("mousemove", (e) => {
 canvas.addEventListener("mouseup", (e) => {
   mouseUpFunction(e);
 });
-
-
 
 function reset(){
   mostRecentlyAssignedID = 0;
@@ -295,7 +294,6 @@ function getAllAsJSON(){
                             ALWAYS_SETTLE_FOR_VACANT:ALWAYS_SETTLE_FOR_VACANT,
                             DRAW_ANGLED_NAME_TEXT:DRAW_ANGLED_NAME_TEXT};
 
-
   return JSON.stringify(output);
 }
 
@@ -352,7 +350,7 @@ function recalculateSpiderDiagram(){
       slotsAtEachLevel[level+""] = 1;
     }
     
-	let otherPersonAndWebContext = {p:otherPerson, degreesFromFocalPerson: level, isAddedToWeb:false, prevPersonInWeb:null};
+	let otherPersonAndWebContext = {p:otherPerson, degreesFromFocalPerson: level, isAddedToWeb:false, prevPersonInWeb:null, hasBeenEvaluated:false};
 	peopleWebContexts.push(otherPersonAndWebContext);
   });    
 
@@ -368,16 +366,17 @@ function recalculateSpiderDiagram(){
   for (let L = 0; L <= maxLevel; L++){
     let slots = []; //'slots' are a bunch of slots in a ring around the focal person, at the required distance, that can be filled up with person nodes. This means that people will never crash into each other!
 
-    let slotCount = Object.keys(slotsAtEachLevel).includes((L)+"") ? (slotsAtEachLevel[L] * L) : 1;
+    let slotCount = getNumberOfSlotsAtLevel(slotsAtEachLevel, L);
     let spider_diagram_arm_length = L * 400;
   
     let angle_diff = 360 / slotCount;
 
     for (let i = 0; i < slotCount; i++){
-        let angle_in_rads = deg2rad((angle_diff * i));
+        let angle_in_rads = deg2rad(90 + (angle_diff * i));
         let armXLength = (Math.sin(angle_in_rads) * spider_diagram_arm_length);
         let armYLength = (Math.cos(angle_in_rads) * spider_diagram_arm_length);
         let newSlot = {
+          slotNumber: i,
           position: [currentFocalPerson.positionOnSpiderDiagram[0] + armXLength, currentFocalPerson.positionOnSpiderDiagram[1] + armYLength],
           occupant: null,
           distOfOccupantToPrev: 999999999
@@ -385,9 +384,32 @@ function recalculateSpiderDiagram(){
         slots.push(newSlot);
     }
 
-    peopleWebContexts.forEach((personWebContext) => {
+    let prevOfLastProcessedPersonWebContext = null;
+    
+    for (let i = 0; i < peopleWebContexts.length; i++){
+      let personWebContext = peopleWebContexts[i];
 
-      if (personWebContext.degreesFromFocalPerson == L){
+      if (personWebContext.degreesFromFocalPerson == L){        
+        if (personWebContext.prevPersonInWeb != null && prevOfLastProcessedPersonWebContext != personWebContext.prevPersonInWeb){ //try and process children of a common parent node in sequence
+          let cont = true;
+          //console.log("considering an array position swap!")
+          peopleWebContexts.forEach((potentialPersonWebContext, potentialIndex) => {
+            if (potentialPersonWebContext.degreesFromFocalPerson == L && !potentialPersonWebContext.hasBeenEvaluated){
+              if (!cont){
+                return;
+              }
+              if (prevOfLastProcessedPersonWebContext != null && potentialPersonWebContext.prevPersonInWeb == prevOfLastProcessedPersonWebContext){
+                let temp = personWebContext;
+                peopleWebContexts[i] = potentialPersonWebContext;
+                personWebContext = potentialPersonWebContext;
+                peopleWebContexts[potentialIndex] = temp;
+                //console.log("Performing a swap in array position between "+temp.p.name+" and "+personWebContext.p.name+" to make sure that children of the same parent are processed together!")
+                cont = false;
+              }
+            }
+          });
+        }
+
         if (personWebContext.prevPersonInWeb == null){ //then this is the root person and they get special treatment!
           personWebContext.p.positionOnSpiderDiagram = [canvas.width/2, canvas.height/2];
         }
@@ -411,58 +433,49 @@ function recalculateSpiderDiagram(){
           }
         });
 
-        //find the next closest available slot in this level's ring, and put this person node at the location of that slot
-
-        if (personWebContext.prevPersonInWeb != null){
-
-          let closestOccupiedDist = 999999999;
-          let closestOccupiedSlot = null;
-
-          let closestVacantDist = 999999999;
-          let closestVacantSlot = null;
-
-          slots.forEach((slot)=>{            
-              let dist = getDistanceBetween(slot.position, personWebContext.prevPersonInWeb.positionOnSpiderDiagram);
-              if (slot.occupant != null && dist < closestOccupiedDist){ //set the closest dist for a slot that is occupied (the ideal slot, that we might even boot something out of, if this one is a better fit)
-                closestOccupiedDist = dist;
-                closestOccupiedSlot = slot;
-              }
-              else if (slot.occupant == null && dist < closestVacantDist){ //set the closest dist for a slot that isn't occupied (a good enough slot if the occupant of our preferred slot turns out to have a better claim to it)
-                closestVacantDist = dist;
-                closestVacantSlot = slot;
-              }
-          });
-
-          if (closestVacantDist <= closestOccupiedDist){ //hooray! We got our first choice!
-              personWebContext.p.positionOnSpiderDiagram = closestVacantSlot.position;
-              closestVacantSlot.distOfOccupantToPrev = closestVacantDist;
-              closestVacantSlot.occupant = personWebContext;
-          } else {  //something else is in the slot that we want :( check its claim and swap if necessary
-            let competingOccupant = closestOccupiedSlot.occupant;
-            personWebContext.p.positionOnSpiderDiagram = closestOccupiedSlot.position; //we temporarily move our candidate to the occupied slot so that we can check the distance etc
-            if (ALWAYS_SETTLE_FOR_VACANT || closestOccupiedSlot.distOfOccupantToPrev <= closestOccupiedDist){ 
-              //the existing person has a better claim, so we settle for the vacant slot
-              personWebContext.p.positionOnSpiderDiagram = closestVacantSlot.position;
-              closestVacantSlot.distOfOccupantToPrev = closestVacantDist;
-              closestVacantSlot.occupant = personWebContext;
-            } else {  //we have a better claim! Swap slots with them!
-              //put them into the second best slot:
-              console.log(competingOccupant.p.name + " kicked out of its spot by a better candidate ("+personWebContext.p.name+")!")
-              competingOccupant.p.positionOnSpiderDiagram = closestVacantSlot.position;
-              closestVacantSlot.distOfOccupantToPrev = getDistanceBetween(competingOccupant.prevPersonInWeb, competingOccupant.p.positionOnSpiderDiagram);
-              closestVacantSlot.occupant = competingOccupant;
-              competingOccupant.p.updateConnectionLinePositions(competingOccupant.prevPersonInWeb);
-              //and put ourselves in the best slot:
-              personWebContext.p.positionOnSpiderDiagram = closestOccupiedSlot.position;
-              closestOccupiedSlot.distOfOccupantToPrev = closestOccupiedDist;
-              closestOccupiedSlot.occupant = personWebContext;
-            }
-          }          
-        }
-        personWebContext.p.updateConnectionLinePositions(personWebContext.prevPersonInWeb);
-      }
-    });
+        findBestSlot(personWebContext,slots, L, slotsAtEachLevel);
+        prevOfLastProcessedPersonWebContext = personWebContext.prevPersonInWeb;
+        personWebContext.hasBeenEvaluated = true;
+        }        
+    }
   }
+}
+
+function getNumberOfSlotsAtLevel(slotsAtEachLevel, L){
+  return Object.keys(slotsAtEachLevel).includes((L)+"") ? (slotsAtEachLevel[L] * (L >= 2 ? Math.round(L*1.5) : 1)) : 1
+}
+
+function getSlotNumberAsProportion(slot,L,slotsAtEachLevel){
+  return slot.slotNumber / getNumberOfSlotsAtLevel(slotsAtEachLevel, L);
+}
+
+function findBestSlot(personWebContext,slots, L, slotsAtEachLevel){
+  //find the next closest available slot in this level's ring, and put this person node at the location of that slot
+
+  let chosenSlot = slots[0];
+
+  if (personWebContext.prevPersonInWeb != null){
+    let smallestDiff = 9999999999;
+    let closestVacantSlot = null;
+
+    slots.forEach((slot)=>{            
+        personWebContext.p.positionOnSpiderDiagram = slot.position; //we temporarily move our candidate to the occupied slot so that we can check the distance etc
+        let thisProportion = getSlotNumberAsProportion(slot,L,slotsAtEachLevel);
+        let prevProportion = getSlotNumberAsProportion(personWebContext.prevPersonInWeb.slot,parseInt(L)-1,slotsAtEachLevel);
+        let diff = Math.abs(thisProportion - prevProportion);
+        if (diff > 0.5){
+          diff = Math.abs(diff-1);
+        }
+        if (slot.occupant == null && diff <= smallestDiff){ //set the closest dist for a slot that isn't occupied (a good enough slot if the occupant of our preferred slot turns out to have a better claim to it)
+          smallestDiff = diff;
+          closestVacantSlot = slot;
+        }
+    });
+    personWebContext.p.positionOnSpiderDiagram = closestVacantSlot.position;
+    closestVacantSlot.occupant = personWebContext;
+    chosenSlot = closestVacantSlot;
+  }
+  personWebContext.p.updateConnectionLinePositions(personWebContext.prevPersonInWeb,chosenSlot);
 }
 
 function getAngleDifferenceToPrev(personWebContext){
@@ -470,9 +483,10 @@ function getAngleDifferenceToPrev(personWebContext){
     return 0;
   }
   if (personWebContext.prevPersonInWeb.connectionTextAngle == null){
-    return personWebContext.p.connectionTextAngle;
+    return Math.abs(personWebContext.p.connectionTextAngle);
   }
   else {
+    personWebContext.p.updateConnectionLinePositions(personWebContext.prevPersonInWeb,"dontUpdate");
     return Math.abs(personWebContext.p.connectionTextAngle - personWebContext.prevPersonInWeb.connectionTextAngle);
   }
 }
@@ -589,7 +603,6 @@ function getPersonWithFewestLevels(){
   return fewestPerson;
 }
 
-
 function getNextID(){
   return mostRecentlyAssignedID++;
 }
@@ -615,6 +628,45 @@ function drawTextToCanvas(ctx, position, angle, text){
   }
     
   ctx.restore(); 
+}
+
+function takeScreenshot(){
+  let maxExtentX = -999999999;
+  let maxExtentY = -999999999;
+  let minExtentX = 999999999;
+  let minExtentY = 999999999;
+
+  people.forEach((person) => {
+    let x = person.positionOnSpiderDiagram[0];
+    let y = person.positionOnSpiderDiagram[1]
+    if (x < minExtentX){
+      minExtentX = x;
+    }
+    if (x > maxExtentX){
+      maxExtentX = x;    
+    }
+    if (y < minExtentY){
+      minExtentY = y;
+    }
+    if (y > maxExtentY){
+      maxExtentY = y;
+    }
+  });
+
+  let width = maxExtentX - minExtentX;
+  let height = maxExtentY - minExtentY;
+
+  ctx.canvas.width = width*1.25;
+  ctx.canvas.height = height*1.25;
+
+  canvasPanX = ctx.canvas.width/10;
+  canvasPanY = ctx.canvas.height/4;
+
+  updateHTML();
+
+  downloadImageAnchorTag.href = ctx.canvas.toDataURL();
+  downloadImageAnchorTag.target = "_blank";
+  downloadImageAnchorTag.click();
 }
 
 class Role {
@@ -722,9 +774,13 @@ class Person {
     return text;
   }
 
-  updateConnectionLinePositions(prevPerson){
+  updateConnectionLinePositions(prevPerson,chosenSlot){
     let armXLength = 0;
     let armYLength = 0;
+
+    if (chosenSlot != "dontUpdate"){
+      this.slot = chosenSlot;  
+    }
     
     if (prevPerson != null){
       armXLength = this.positionOnSpiderDiagram[0] - prevPerson.positionOnSpiderDiagram[0]
@@ -987,6 +1043,65 @@ function makeOptionFor(json, name){
   return newOption;
 }
 
+function addTempMapViaCode(){
+  reset();
+
+  // * START OF MODIFIABLE SECTION *
+  //put addPerson() statements here
+
+  addPerson("Luke Skywalker");
+  addPerson("Leia Organa");
+  addPerson("Anakin Skywalker");
+  addPerson("Padme Amidala");
+  addPerson("Shmi Skywalker");
+  addPerson("Sheev Palpatine");
+  addPerson("Obi-Wan Kenobi");
+  addPerson("Qui-gon Jinn");
+  addPerson("Count Dooku");
+  addPerson("Yoda");
+  addPerson("Darth Maul");
+  addPerson("Rey");
+  addPerson("Han Solo");
+  addPerson("Chewbacca");
+  addPerson("Jabba the Hutt");
+  addPerson("the Clones");
+  addPerson("Jango Fett");
+  addPerson("Boba Fett");
+
+  //put getPerson().addRelation() statements here:
+  
+  getPerson("Anakin Skywalker").addRelation(getPerson("Shmi Skywalker"),"is the son of","is the mother of",true);
+  getPerson("Luke Skywalker").addRelation(getPerson("Anakin Skywalker"),"is the son of","is the father of",true);
+  getPerson("Luke Skywalker").addRelation(getPerson("Padme Amidala"),"is the son of","is the mother of",true);
+  getPerson("Leia Organa").addRelation(getPerson("Anakin Skywalker"),"is the daughter of","is the father of",true);
+  getPerson("Leia Organa").addRelation(getPerson("Padme Amidala"),"is the daughter of","is the mother of",true);
+  getPerson("Leia Organa").addRelation(getPerson("Luke Skywalker"),"is the sister of","is the brother of",true);
+  getPerson("Han Solo").addRelation(getPerson("Leia Organa"),"loved","loved",true);
+  getPerson("Han Solo").addRelation(getPerson("Jabba the Hutt"),"works for","employed",true);
+  getPerson("Chewbacca").addRelation(getPerson("Han Solo"),"is friends with","is friends with",true);
+  getPerson("Padme Amidala").addRelation(getPerson("Anakin Skywalker"),"is the lover of","is the lover of",true);
+  getPerson("Anakin Skywalker").addRelation(getPerson("Obi-Wan Kenobi"),"was trained by","trained",true);
+  getPerson("Obi-Wan Kenobi").addRelation(getPerson("Qui-gon Jinn"),"was trained by","trained",true);
+  getPerson("Qui-gon Jinn").addRelation(getPerson("Count Dooku"),"was trained by","trained",true);
+  getPerson("Count Dooku").addRelation(getPerson("Yoda"),"was trained by","trained",true);
+  getPerson("Anakin Skywalker").addRelation(getPerson("Sheev Palpatine"),"was sith apprentice to","was Sith master to",true);
+  getPerson("Darth Maul").addRelation(getPerson("Sheev Palpatine"),"was sith apprentice to","was Sith master to",true);
+  getPerson("Count Dooku").addRelation(getPerson("Sheev Palpatine"),"was sith apprentice to","was Sith master to",true);
+  getPerson("Luke Skywalker").addRelation(getPerson("Yoda"),"was trained by","trained",true);
+  getPerson("Rey").addRelation(getPerson("Luke Skywalker"),"was trained by","trained",true);
+  getPerson("Rey").addRelation(getPerson("Sheev Palpatine"),"is the granddaughter of","is the grandfather of",true);
+  getPerson("Boba Fett").addRelation(getPerson("Jango Fett"),"is a clone of","was cloned to create",true);
+  getPerson("the Clones").addRelation(getPerson("Sheev Palpatine"),"were commissioned by","commissioned the creation of",true);
+  getPerson("the Clones").addRelation(getPerson("Jango Fett"),"are clones of","was cloned to create",true);
+  getPerson("Anakin Skywalker").addRelation(getPerson("the Clones"),"fought alongside","fought alongside",true);
+  getPerson("Obi-Wan Kenobi").addRelation(getPerson("the Clones"),"fought alongside","fought alongside",true);
+
+  // * END OF MODIFIABLE SECTION *
+
+  setupAfterLoad();
+  console.log(getAllAsJSON());
+}
+
 dropdown.appendChild(makeOptionFor(vampire, "Vampire"));
 dropdown.appendChild(makeOptionFor(majora, "Zelda Majora's Mask"));
 dropdown.appendChild(makeOptionFor(hamlet, "Hamlet"));
@@ -994,4 +1109,4 @@ dropdown.appendChild(makeOptionFor(hamlet, "Hamlet"));
 reset();
 dropdown.children[0].click();
 
-setupAfterLoad();
+addTempMapViaCode();
