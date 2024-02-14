@@ -87,6 +87,16 @@ canvas:active {
   opacity:0.95;
 }
 
+#find-shortest-path-div {
+  bottom:1.75em;
+  left:1.5em;
+  position:absolute;
+  font-size: 1.2em;
+  padding:0.5em;
+  opacity:0.95;
+  display:flex;
+  user-select:none;
+}
 
 #notification {
   position:absolute;
@@ -112,5 +122,25 @@ canvas:active {
 
 #notification.fadeout {
   opacity: 0;
+}
 
+#personA {
+  width:48%;
+  padding:0.5em;
+}
+
+#personB {
+  width:48%;
+  padding:0.5em;
+}
+
+#shortest-path-answer-text{
+  height:100%;
+  padding-left:0.75em;
+  font-size:0.75em;
+  max-width: 62.5em;
+  user-select:none;
+  position:relative;
+  max-height:5em;
+  overflow-y: auto;
 }

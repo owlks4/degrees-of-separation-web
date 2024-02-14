@@ -19,7 +19,8 @@
 {"firstThing":1,"otherThing":79,"description":"races the","type":"PP"},
 {"firstThing":1,"otherThing":94,"description":"is searching for","type":"PP"},
 {"firstThing":1,"otherThing":95,"description":"owns","type":"PP"},
-{"firstThing":1,"otherThing":85,"description":"is prevented from entering Ikana Canyon by","type":"PP"}],"myRoles":[]},
+{"firstThing":1,"otherThing":85,"description":"is prevented from entering Ikana Canyon by","type":"PP"},
+{"firstThing":1,"otherThing":96,"description":"was given the Ocarina of Time by","type":"PP"}],"myRoles":[]},
 {"name":"Skull Kid","id":2,"relations":[
 {"firstThing":2,"otherThing":0,"description":"stole an ancient mask from the","type":"PP"},
 {"firstThing":2,"otherThing":3,"description":"used to be friends with","type":"PP"},
@@ -355,5 +356,7 @@
 {"name":"Epona","id":95,"relations":[
 {"firstThing":95,"otherThing":1,"description":"is owned by","type":"PP"},
 {"firstThing":95,"otherThing":2,"description":"was stolen by","type":"PP"},
-{"firstThing":95,"otherThing":20,"description":"can be won back from","type":"PP"}],"myRoles":[]}
+{"firstThing":95,"otherThing":20,"description":"can be won back from","type":"PP"}],"myRoles":[]},
+{"name":"Princess Zelda","id":96,"relations":[
+{"firstThing":96,"otherThing":1,"description":"gave the Ocarina of Time to","type":"PP"}],"myRoles":[]}
 ],"jsonRoles":[],"jsonSettings":{"colouredConnectionTexts":{},"USE_COLOURED_CONNECTION_TEXTS":true,"ALWAYS_SETTLE_FOR_VACANT":false,"DRAW_ANGLED_NAME_TEXT":true}}
