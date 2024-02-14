@@ -23,6 +23,7 @@ let colouredConnectionTexts = {};
 let USE_COLOURED_CONNECTION_TEXTS = false;
 let ALWAYS_SETTLE_FOR_VACANT = false;
 let DRAW_ANGLED_NAME_TEXT = false;
+let INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT = true;
 
 let personA = document.getElementById("personA");
 let personB = document.getElementById("personB");
@@ -106,6 +107,7 @@ function reset(){
   spiderDiagramAvoidPeople = [];
   ALWAYS_SETTLE_FOR_VACANT = false;
   USE_COLOURED_CONNECTION_TEXTS = true;
+  INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT = true;
 }
 
 function setCurrentFocalPerson(p){
@@ -230,6 +232,7 @@ function loadFromVersion2JsonFile(obj){ //loads from a V2 json file - where the 
   USE_COLOURED_CONNECTION_TEXTS = false;
   DRAW_ANGLED_NAME_TEXT = false;
   ALWAYS_SETTLE_FOR_VACANT = true;
+  INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT = true;
 
   if (jsonSettings != null){
     Object.keys(jsonSettings).forEach((key) => {
@@ -246,6 +249,8 @@ function loadFromVersion2JsonFile(obj){ //loads from a V2 json file - where the 
         case "DRAW_ANGLED_NAME_TEXT":
           DRAW_ANGLED_NAME_TEXT = jsonSettings.DRAW_ANGLED_NAME_TEXT;
         break;
+        case "INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT":
+          INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT = jsonSettings.INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT;
       }
     });
   }
@@ -324,7 +329,8 @@ function getAllAsJSON(){
   output["jsonSettings"] = {colouredConnectionTexts:colouredConnectionTexts,
                             USE_COLOURED_CONNECTION_TEXTS:USE_COLOURED_CONNECTION_TEXTS,
                             ALWAYS_SETTLE_FOR_VACANT:ALWAYS_SETTLE_FOR_VACANT,
-                            DRAW_ANGLED_NAME_TEXT:DRAW_ANGLED_NAME_TEXT};
+                            DRAW_ANGLED_NAME_TEXT:DRAW_ANGLED_NAME_TEXT,
+                            INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT:INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT};
 
   return JSON.stringify(output);
 }
@@ -1020,7 +1026,16 @@ class Person {
       let firstLoop = true;
 
         while (prev != null) {
-          reportString += curPerson.name + (firstLoop ? " " : ", who ") + curPerson.getImmediateRelationshipTextTo(prev,true);
+          
+          reportString += curPerson.name;
+
+          if (INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT){
+            reportString += ((firstLoop) ? " " : ", who ") + curPerson.getImmediateRelationshipTextTo(prev,true);
+          } else {
+            reportString += " -> ";
+          }
+          
+          curPerson.getImmediateRelationshipTo(prev).highlighted = true;
           prev.getImmediateRelationshipTo(curPerson).highlighted = true;
 
           if (prev == this){
