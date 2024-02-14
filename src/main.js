@@ -1186,4 +1186,4 @@ dropdown.appendChild(makeOptionFor(hamlet, "Hamlet"));
 reset();
 dropdown.children[0].click();
 
-addTempMapViaCode();
+//addTempMapViaCode();
