@@ -1,6 +1,7 @@
 import majora from './majora.json';
 import vampire from './vampire.json';
 import hamlet from './hamlet.json';
+import starwars from './starwars.json';
 import tube from './tube.json';
 
 let people = [];
@@ -97,6 +98,18 @@ canvas.addEventListener("mousemove", (e) => {
 
 canvas.addEventListener("mouseup", (e) => {
   mouseUpFunction(e);
+});
+
+shortestPathAnswerText.addEventListener("mousedown", (e) => {
+  mousedownFunction(e);
+});
+
+shortestPathAnswerText.addEventListener("mousemove", (e) => {
+mouseMoveFunction(e);
+});
+
+shortestPathAnswerText.addEventListener("mouseup", (e) => {
+mouseUpFunction(e);
 });
 
 function reset(){
@@ -818,16 +831,13 @@ class Person {
     return null;
   }
 
-  getImmediateRelationshipTextTo(otherPerson, highlighted){
+  getImmediateRelationshipTextTo(otherPerson){
     let text = "is not immediately related to";
 
     this.relations.forEach((relation) => {
       if (relation.getOtherPerson() == otherPerson)
         {
-          text = relation.description;
-          if (highlighted != null && highlighted){
-            relation.highlighted = true;
-          }          
+          text = relation.description;        
         }
     });
 
@@ -856,9 +866,9 @@ class Person {
                                     this.positionOnSpiderDiagram[1] - (armYLength / 2)];
 
       if (armXLength < 0){
-        this.connectionTextWithPrevOnVisualWeb = prevPerson.getImmediateRelationshipTextTo(this,false); //these two have temporarily, or maybe permanently, been made the same, because it flows better now that the web is concentric
+        this.connectionTextWithPrevOnVisualWeb = prevPerson.getImmediateRelationshipTextTo(this); //these two have temporarily, or maybe permanently, been made the same, because it flows better now that the web is concentric
       }  else {
-        this.connectionTextWithPrevOnVisualWeb = prevPerson.getImmediateRelationshipTextTo(this,false);
+        this.connectionTextWithPrevOnVisualWeb = prevPerson.getImmediateRelationshipTextTo(this);
       }                                  
 
       this.prevInVisualWeb = prevPerson;
@@ -1030,7 +1040,7 @@ class Person {
           reportString += curPerson.name;
 
           if (INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT){
-            reportString += ((firstLoop) ? " " : ", who ") + curPerson.getImmediateRelationshipTextTo(prev,true);
+            reportString += ((firstLoop) ? " " : ", who ") + curPerson.getImmediateRelationshipTextTo(prev);
           } else {
             reportString += " -> ";
           }
@@ -1141,62 +1151,19 @@ function addTempMapViaCode(){
   // * START OF MODIFIABLE SECTION *
   //put addPerson() statements here
 
-  addPerson("Luke Skywalker");
-  addPerson("Leia Organa");
-  addPerson("Anakin Skywalker");
-  addPerson("Padme Amidala");
-  addPerson("Shmi Skywalker");
-  addPerson("Sheev Palpatine");
-  addPerson("Obi-Wan Kenobi");
-  addPerson("Qui-gon Jinn");
-  addPerson("Count Dooku");
-  addPerson("Yoda");
-  addPerson("Darth Maul");
-  addPerson("Rey");
-  addPerson("Han Solo");
-  addPerson("Chewbacca");
-  addPerson("Jabba the Hutt");
-  addPerson("the Clones");
-  addPerson("Jango Fett");
-  addPerson("Boba Fett");
-
+ 
   //put getPerson().addRelation() statements here:
-  
-  getPerson("Anakin Skywalker").addRelation(getPerson("Shmi Skywalker"),"is the son of","is the mother of",true);
-  getPerson("Luke Skywalker").addRelation(getPerson("Anakin Skywalker"),"is the son of","is the father of",true);
-  getPerson("Luke Skywalker").addRelation(getPerson("Padme Amidala"),"is the son of","is the mother of",true);
-  getPerson("Leia Organa").addRelation(getPerson("Anakin Skywalker"),"is the daughter of","is the father of",true);
-  getPerson("Leia Organa").addRelation(getPerson("Padme Amidala"),"is the daughter of","is the mother of",true);
-  getPerson("Leia Organa").addRelation(getPerson("Luke Skywalker"),"is the sister of","is the brother of",true);
-  getPerson("Han Solo").addRelation(getPerson("Leia Organa"),"loved","loved",true);
-  getPerson("Han Solo").addRelation(getPerson("Jabba the Hutt"),"works for","employed",true);
-  getPerson("Chewbacca").addRelation(getPerson("Han Solo"),"is friends with","is friends with",true);
-  getPerson("Padme Amidala").addRelation(getPerson("Anakin Skywalker"),"is the lover of","is the lover of",true);
-  getPerson("Anakin Skywalker").addRelation(getPerson("Obi-Wan Kenobi"),"was trained by","trained",true);
-  getPerson("Obi-Wan Kenobi").addRelation(getPerson("Qui-gon Jinn"),"was trained by","trained",true);
-  getPerson("Qui-gon Jinn").addRelation(getPerson("Count Dooku"),"was trained by","trained",true);
-  getPerson("Count Dooku").addRelation(getPerson("Yoda"),"was trained by","trained",true);
-  getPerson("Anakin Skywalker").addRelation(getPerson("Sheev Palpatine"),"was sith apprentice to","was Sith master to",true);
-  getPerson("Darth Maul").addRelation(getPerson("Sheev Palpatine"),"was sith apprentice to","was Sith master to",true);
-  getPerson("Count Dooku").addRelation(getPerson("Sheev Palpatine"),"was sith apprentice to","was Sith master to",true);
-  getPerson("Luke Skywalker").addRelation(getPerson("Yoda"),"was trained by","trained",true);
-  getPerson("Rey").addRelation(getPerson("Luke Skywalker"),"was trained by","trained",true);
-  getPerson("Rey").addRelation(getPerson("Sheev Palpatine"),"is the granddaughter of","is the grandfather of",true);
-  getPerson("Boba Fett").addRelation(getPerson("Jango Fett"),"is a clone of","was cloned to create",true);
-  getPerson("the Clones").addRelation(getPerson("Sheev Palpatine"),"were commissioned by","commissioned the creation of",true);
-  getPerson("the Clones").addRelation(getPerson("Jango Fett"),"are clones of","was cloned to create",true);
-  getPerson("Anakin Skywalker").addRelation(getPerson("the Clones"),"fought alongside","fought alongside",true);
-  getPerson("Obi-Wan Kenobi").addRelation(getPerson("the Clones"),"fought alongside","fought alongside",true);
-
+ 
   // * END OF MODIFIABLE SECTION *
 
   setupAfterLoad();
   console.log(getAllAsJSON());
 }
 
-dropdown.appendChild(makeOptionFor(vampire, "Vampire"));
-dropdown.appendChild(makeOptionFor(majora, "Zelda Majora's Mask"));
+dropdown.appendChild(makeOptionFor(starwars, "Star Wars"));
 dropdown.appendChild(makeOptionFor(hamlet, "Hamlet"));
+dropdown.appendChild(makeOptionFor(majora, "Majora's Mask"));
+dropdown.appendChild(makeOptionFor(vampire, "Vampire"));
 
 reset();
 dropdown.children[0].click();

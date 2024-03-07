@@ -143,4 +143,9 @@ canvas:active {
   position:relative;
   max-height:5em;
   overflow-y: auto;
+  cursor: grab;
+}
+
+#shortest-path-answer-text:active {
+  cursor:grabbing;
 }
