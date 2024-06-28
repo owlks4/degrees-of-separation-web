@@ -25,6 +25,17 @@ let USE_COLOURED_CONNECTION_TEXTS = false;
 let ALWAYS_SETTLE_FOR_VACANT = false;
 let DRAW_ANGLED_NAME_TEXT = false;
 let INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT = true;
+let IS_FAMILY_TREE_STYLE = false;
+
+const FAMILY_RELATIONSHIPS_RELATIVE_LEVELS = {"PARENT":-1,
+                                              "GRANDPARENT":-2,
+                                              "SIBLING":0,
+                                              "SPOUSE":0,
+                                              "CHILD":1,
+                                              "GRANDCHILD":2
+                                              }
+
+const FAMILY_RELATIONSHIPS_KEYS = Object.keys(FAMILY_RELATIONSHIPS_RELATIVE_LEVELS)
 
 let personA = document.getElementById("personA");
 let personB = document.getElementById("personB");
@@ -92,24 +103,16 @@ canvas.addEventListener("mousedown", (e) => {
     mousedownFunction(e);
 });
 
-canvas.addEventListener("mousemove", (e) => {
+window.addEventListener("mousemove", (e) => {
   mouseMoveFunction(e);
 });
 
-canvas.addEventListener("mouseup", (e) => {
+window.addEventListener("mouseup", (e) => {
   mouseUpFunction(e);
 });
 
 shortestPathAnswerText.addEventListener("mousedown", (e) => {
   mousedownFunction(e);
-});
-
-shortestPathAnswerText.addEventListener("mousemove", (e) => {
-mouseMoveFunction(e);
-});
-
-shortestPathAnswerText.addEventListener("mouseup", (e) => {
-mouseUpFunction(e);
 });
 
 function reset(){
@@ -127,7 +130,11 @@ function setCurrentFocalPerson(p){
   currentFocalPerson = p;
   canvasPanX = -window.innerWidth/10;
   canvasPanY = -window.innerHeight/14;
-  recalculateSpiderDiagram();
+  if (IS_FAMILY_TREE_STYLE){
+    recalculateTreeDiagram();
+  } else {
+    recalculateSpiderDiagram();
+  }
   updateHTML();
 }
 
@@ -246,6 +253,7 @@ function loadFromVersion2JsonFile(obj){ //loads from a V2 json file - where the 
   DRAW_ANGLED_NAME_TEXT = false;
   ALWAYS_SETTLE_FOR_VACANT = true;
   INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT = true;
+  IS_FAMILY_TREE_STYLE = false;
 
   if (jsonSettings != null){
     Object.keys(jsonSettings).forEach((key) => {
@@ -264,6 +272,8 @@ function loadFromVersion2JsonFile(obj){ //loads from a V2 json file - where the 
         break;
         case "INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT":
           INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT = jsonSettings.INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT;
+        case "IS_FAMILY_TREE_STYLE":
+          IS_FAMILY_TREE_STYLE = jsonSettings.IS_FAMILY_TREE_STYLE;
       }
     });
   }
@@ -343,7 +353,8 @@ function getAllAsJSON(){
                             USE_COLOURED_CONNECTION_TEXTS:USE_COLOURED_CONNECTION_TEXTS,
                             ALWAYS_SETTLE_FOR_VACANT:ALWAYS_SETTLE_FOR_VACANT,
                             DRAW_ANGLED_NAME_TEXT:DRAW_ANGLED_NAME_TEXT,
-                            INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT:INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT};
+                            INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT:INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT,
+                            IS_FAMILY_TREE_STYLE:IS_FAMILY_TREE_STYLE};
 
   return JSON.stringify(output);
 }
@@ -362,6 +373,155 @@ function globalCanvasRedraw(){
   people.forEach((person) => {
     person.drawToCanvas();
   });
+}
+
+function recalculateTreeDiagram(){
+ 
+  let peopleWebContexts = [];
+
+  let slotsAtEachFamilyRelativeLevel = {};
+
+  let MONITOR_NODES_THAT_COULD_NOT_BE_REACHED = false;
+
+  let couldNotBeReached = [];
+
+  let uniqueRelativeFamilyLevels = [];
+
+  let maxLevel = 0;
+
+  people.forEach((otherPerson) => {
+    otherPerson.unhighlightRelations();
+
+    let degreesOfSepAnalysis = currentFocalPerson.getDegreesOfSeparationFrom(otherPerson, spiderDiagramAvoidPeople, false, false);
+
+    let level = degreesOfSepAnalysis.degrees;
+
+	  if (level == undefined){
+      otherPerson.positionOnSpiderDiagram = [0,0]
+      otherPerson.updateConnectionLinePositions(null);
+      if (MONITOR_NODES_THAT_COULD_NOT_BE_REACHED){
+        couldNotBeReached.push(otherPerson);
+      }
+      return;
+	  }
+
+    if (spiderDiagramAvoidPeople.includes(otherPerson)){
+      return;
+    }
+    		
+    if (level > maxLevel){
+      maxLevel = level;
+    }
+
+    console.log(otherPerson)
+    console.log(degreesOfSepAnalysis.relativeFamilyLevel)
+    if (!uniqueRelativeFamilyLevels.includes(degreesOfSepAnalysis.relativeFamilyLevel)){
+      uniqueRelativeFamilyLevels.push(degreesOfSepAnalysis.relativeFamilyLevel)
+    }
+
+    if (Object.keys(slotsAtEachFamilyRelativeLevel).includes(degreesOfSepAnalysis.relativeFamilyLevel+"")){
+      slotsAtEachFamilyRelativeLevel[degreesOfSepAnalysis.relativeFamilyLevel+""] = slotsAtEachFamilyRelativeLevel[degreesOfSepAnalysis.relativeFamilyLevel+""] + 1;
+    } else {
+      slotsAtEachFamilyRelativeLevel[degreesOfSepAnalysis.relativeFamilyLevel+""] = 1;
+    }
+    
+	let otherPersonAndWebContext = {p:otherPerson, degreesFromFocalPerson: level, isAddedToWeb:false, prevPersonInWeb:null,
+                                  hasBeenEvaluated:false, relationLevelRelativeToFocalPerson:degreesOfSepAnalysis.relativeFamilyLevel};
+	peopleWebContexts.push(otherPersonAndWebContext);
+  });    
+
+  uniqueRelativeFamilyLevels.sort((a,b) => {Math.abs(a) - Math.abs(b)})
+
+  if (MONITOR_NODES_THAT_COULD_NOT_BE_REACHED){
+    let couldNotBeReachedString = "The following nodes could not be reached from the chosen centrepoint: ";
+
+    couldNotBeReached.forEach((item) => {
+      couldNotBeReachedString += item.name + ", ";
+    })
+    console.log(couldNotBeReachedString)
+  }
+
+  console.log(uniqueRelativeFamilyLevels)
+
+  let slotArraysForEachRelativeLevel = {}
+
+  uniqueRelativeFamilyLevels.forEach(RFL => {
+    let slots = [];
+
+    let slotCount = slotsAtEachFamilyRelativeLevel[RFL];
+
+    for (let i = 0; i < slotCount; i++){
+        let xOffsetFromFocalPerson = RFL * 200 * (i-(slotCount/2));
+        let yOffsetFromFocalPerson = -RFL * 200;
+        console.log(yOffsetFromFocalPerson)
+        let newSlot = {
+          slotNumber: i,
+          position: [canvas.width/2 + xOffsetFromFocalPerson, canvas.height/2 + yOffsetFromFocalPerson],
+          occupant: null,
+          distOfOccupantToPrev: 999999999
+          };
+        slots.push(newSlot);
+    }
+    slotArraysForEachRelativeLevel[RFL] = slots;
+  });
+
+  for (let L = 0; L < maxLevel; L++) {
+
+    let prevOfLastProcessedPersonWebContext = null;
+    
+    for (let i = 0; i < peopleWebContexts.length; i++){
+      let personWebContext = peopleWebContexts[i];
+        
+      if (personWebContext.degreesFromFocalPerson == L){        
+        if (personWebContext.prevPersonInWeb != null && prevOfLastProcessedPersonWebContext != personWebContext.prevPersonInWeb){ //try and process children of a common parent node in sequence
+          let cont = true;
+          //console.log("considering an array position swap!")
+          peopleWebContexts.forEach((potentialPersonWebContext, potentialIndex) => {
+            if (potentialPersonWebContext.degreesFromFocalPerson == L && !potentialPersonWebContext.hasBeenEvaluated){
+              if (!cont){
+                return;
+              }
+              if (prevOfLastProcessedPersonWebContext != null && potentialPersonWebContext.prevPersonInWeb == prevOfLastProcessedPersonWebContext){
+                let temp = personWebContext;
+                peopleWebContexts[i] = potentialPersonWebContext;
+                personWebContext = potentialPersonWebContext;
+                peopleWebContexts[potentialIndex] = temp;
+                //console.log("Performing a swap in array position between "+temp.p.name+" and "+personWebContext.p.name+" to make sure that children of the same parent are processed together!")
+                cont = false;
+              }
+            }
+          });
+        }
+
+        if (personWebContext.prevPersonInWeb == null){ //then this is the root person and they get special treatment!
+          personWebContext.p.positionOnSpiderDiagram = [canvas.width/2, canvas.height/2];
+        }
+
+        personWebContext.isAddedToWeb = true;
+
+        personWebContext.p.relations.forEach((relation) => {
+          if (spiderDiagramAvoidRelationText.includes(relation.description)){
+            return;
+          }
+          for (let i = 0; i < peopleWebContexts.length; i++){
+            let otherPersonWebCtx = peopleWebContexts[i];
+            if (otherPersonWebCtx.p == relation.getOtherPerson()){ //if the other person in this relationship is already added to the web, don't add them again. The return returns the forEach iteration in the relations array, not the wider function.
+              if (otherPersonWebCtx.isAddedToWeb){
+                return;
+              } else {
+                otherPersonWebCtx.prevPersonInWeb = personWebContext.p;
+                otherPersonWebCtx.isAddedToWeb = true;
+              }
+            }
+          }
+        });
+
+        findBestSlot(personWebContext, slotArraysForEachRelativeLevel[personWebContext.relationLevelRelativeToFocalPerson], personWebContext.relationLevelRelativeToFocalPerson, slotsAtEachFamilyRelativeLevel);
+        prevOfLastProcessedPersonWebContext = personWebContext.prevPersonInWeb;
+        personWebContext.hasBeenEvaluated = true;
+        }        
+    }
+  }
 }
 
 function recalculateSpiderDiagram(){
@@ -486,7 +646,7 @@ function recalculateSpiderDiagram(){
           }
         });
 
-        findBestSlot(personWebContext,slots, L, slotsAtEachLevel);
+        findBestSlot(personWebContext, slots, L, slotsAtEachLevel);
         prevOfLastProcessedPersonWebContext = personWebContext.prevPersonInWeb;
         personWebContext.hasBeenEvaluated = true;
         }        
@@ -939,6 +1099,10 @@ class Person {
     return {name: this.name, id:this.id, relations:JSONfriendlyRelations, myRoles:this.myRoles};
   }
 
+  getLevelUsingFamilialRelationsRelativeTo(otherPerson, avoidPeople){
+    return this.getDegreesOfSeparationFrom(otherPerson, avoidPeople).relativeFamilyLevel
+  }
+
   getDegreesOfSeparationAsStringFrom(targetPerson, avoidPeople){
     let reportString = this.getDegreesOfSeparationFrom(targetPerson,avoidPeople,false,false).report;
 	if (avoidPeople != null && avoidPeople.length > 0){
@@ -951,9 +1115,9 @@ class Person {
     
     if (targetPerson == this){
       if (numberOnly){
-        return {degrees:0,report:null};
+        return {degrees:0,report:null,relativeFamilyLevel:0};
       } else {
-        return {degrees:0,report: targetPerson.name+" and "+targetPerson.name+" are the same person, so the degrees of separation are 0."};
+        return {degrees:0,report: targetPerson.name+" and "+targetPerson.name+" are the same person, so the degrees of separation are 0.",relativeFamilyLevel:0};
       }      
     }
 
@@ -1025,24 +1189,35 @@ class Person {
     }
 
     let reportString = this.name + " is " + peopleAndCounts[targetPerson.id] + " degree"+( peopleAndCounts[targetPerson.id] == 1 ? "" : "s")+" away from " + targetPerson.name+". ";
+    let relativeFamilyLevel = 0;
 
     if (targetFound){
       if (numberOnly){
         return {degrees: peopleAndCounts[targetPerson.id], report:null}
       }
+
       let curPerson = targetPerson;
       let prev = peopleAndPrevPeople[targetPerson.id];
       
       let firstLoop = true;
 
+      console.log("Let's find out how "+targetPerson.name+" is related to "+this.name)
+
         while (prev != null) {
-          
           reportString += curPerson.name;
 
+          let relationshipToPrev = curPerson.getImmediateRelationshipTextTo(prev);
+
           if (INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT){
-            reportString += ((firstLoop) ? " " : ", who ") + curPerson.getImmediateRelationshipTextTo(prev);
+            reportString += ((firstLoop) ? " " : ", who ") + relationshipToPrev;
           } else {
             reportString += " -> ";
+          }
+          
+          console.log(relationshipToPrev)
+          if (FAMILY_RELATIONSHIPS_KEYS.includes(relationshipToPrev)){
+            relativeFamilyLevel += FAMILY_RELATIONSHIPS_RELATIVE_LEVELS[relationshipToPrev];
+            console.log(relativeFamilyLevel)
           }
           
           curPerson.getImmediateRelationshipTo(prev).highlighted = true;
@@ -1069,7 +1244,7 @@ class Person {
         reportString += getAvoidingText(avoidPeople);
       }
 
-    return {degrees: peopleAndCounts[targetPerson.id], report:reportString};
+    return {degrees: peopleAndCounts[targetPerson.id], report:reportString, relativeFamilyLevel:relativeFamilyLevel};
   }
 }
 
@@ -1149,20 +1324,20 @@ function addTempMapViaCode(){
   reset();
 
   // * START OF MODIFIABLE SECTION *
+  
   //put addPerson() statements here
 
- 
   //put getPerson().addRelation() statements here:
- 
+
   // * END OF MODIFIABLE SECTION *
 
   setupAfterLoad();
   console.log(getAllAsJSON());
 }
 
-dropdown.appendChild(makeOptionFor(starwars, "Star Wars"));
-dropdown.appendChild(makeOptionFor(hamlet, "Hamlet"));
 dropdown.appendChild(makeOptionFor(majora, "Majora's Mask"));
+dropdown.appendChild(makeOptionFor(hamlet, "Hamlet"));
+dropdown.appendChild(makeOptionFor(starwars, "Star Wars"));
 dropdown.appendChild(makeOptionFor(vampire, "Vampire"));
 
 reset();

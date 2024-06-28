@@ -1,3 +1,3 @@
-A relationship web program that uses Dijkstra's algorithm to visually depict the degrees of separation.
+A relationship web program that uses Dijkstra's algorithm to visually depict the degrees of separation between any two people in the web.
 
-(It's good form to have the person with the most connections at the centre, because all subsequent connections will then flow more naturally around them)
+(It's good form to have the person with the most connections at the centre, because all subsequent connections will then flow more naturally around them. Also, because the web shows the shortest paths to everybody else when using the *central* person as an origin, sometimes the shortest path between two *other* people will take a route not depicted by the current web. So if you see your currently highlighted connection line disappear and reappear on the other side of the web, this is why.)
