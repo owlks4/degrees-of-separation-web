@@ -924,7 +924,7 @@ function makeSVG(data) {
 
   const simulation = d3.forceSimulation(nodes)
       .force("link", d3.forceLink(links).id(d => d.id).distance(10).strength(1))
-      .force("charge", d3.forceManyBody().strength(-2000))
+      .force("charge", d3.forceManyBody().strength(-1900))
       .force("x", d3.forceX())
       .force("y", d3.forceY());
 
@@ -1002,6 +1002,8 @@ dropdown.appendChild(makeOptionFor(majora, "Majora's Mask"));
 dropdown.appendChild(makeOptionFor(hamlet, "Hamlet"));
 dropdown.appendChild(makeOptionFor(starwars, "Star Wars"));
 dropdown.appendChild(makeOptionFor(vampire, "Vampire"));
+//dropdown.appendChild(makeOptionFor(tube, "Tube"));
+
 
 reset();
 dropdown.children[0].click();
