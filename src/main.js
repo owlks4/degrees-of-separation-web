@@ -3,6 +3,7 @@ import vampire from './vampire.json';
 import hamlet from './hamlet.json';
 import starwars from './starwars.json';
 import tube from './tube.json';
+import * as d3 from "d3";
 
 let people = [];
 let mostRecentlyAssignedID = 0;
@@ -10,22 +11,14 @@ let currentFocalPerson = null;
 let spiderDiagramAvoidPeople = [];
 let spiderDiagramAvoidRelationText = [];
 let roles = [];
-let downloadImageAnchorTag = document.createElement("a");
-
-let canvas = document.getElementById("canvas");
-
-let ctx = canvas.getContext("2d");
-ctx.canvas.width  = window.innerWidth;
-ctx.canvas.height = window.innerHeight;
-let canvasPanX = 0; //is set to its default elsewhere
-let canvasPanY = 0; //is set to its default elsewhere
 
 let colouredConnectionTexts = {};
 let USE_COLOURED_CONNECTION_TEXTS = false;
 let ALWAYS_SETTLE_FOR_VACANT = false;
 let DRAW_ANGLED_NAME_TEXT = false;
 let INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT = true;
-let IS_FAMILY_TREE_STYLE = false;
+
+let dataInD3Format = null;
 
 const FAMILY_RELATIONSHIPS_RELATIVE_LEVELS = {"PARENT":-1,
                                               "GRANDPARENT":-2,
@@ -56,30 +49,6 @@ function personConnectionDropdownChanged(alsoUpdateHTML){
   }  
 }
 
-window.addEventListener("resize", (event) => {ctx.canvas.width,ctx.canvas.height});
-
-document.addEventListener('keyup', (e) => {
-  let change = 20;
- switch (e.key){
-    case "w":
-        canvasPanY += change;
-        updateHTML();
-    break;
-    case "s":
-        canvasPanY -= change;
-        updateHTML();
-    break;
-    case "a":
-        canvasPanX += change;
-        updateHTML();
-    break;
-    case "d":
-        canvasPanX -= change;
-        updateHTML();
-    break;
-  }
-});
-
 let oldMousePos = null;
 
 function mousedownFunction (e){
@@ -88,20 +57,14 @@ function mousedownFunction (e){
 
 function mouseMoveFunction (e){
   if (oldMousePos != null){
-    canvasPanX += (e.screenX - oldMousePos[0]);
-    canvasPanY += (e.screenY - oldMousePos[1]);
-    oldMousePos = [e.screenX, e.screenY];      
-    updateHTML();
-}
+
+  }
 }
 
 function mouseUpFunction(e){
   oldMousePos = null;
 }
 
-canvas.addEventListener("mousedown", (e) => {
-    mousedownFunction(e);
-});
 
 window.addEventListener("mousemove", (e) => {
   mouseMoveFunction(e);
@@ -128,13 +91,7 @@ function reset(){
 
 function setCurrentFocalPerson(p){
   currentFocalPerson = p;
-  canvasPanX = -window.innerWidth/10;
-  canvasPanY = -window.innerHeight/14;
-  if (IS_FAMILY_TREE_STYLE){
-    recalculateTreeDiagram();
-  } else {
-    recalculateSpiderDiagram();
-  }
+  recalculateSpiderDiagram();
   updateHTML();
 }
 
@@ -253,7 +210,6 @@ function loadFromVersion2JsonFile(obj){ //loads from a V2 json file - where the 
   DRAW_ANGLED_NAME_TEXT = false;
   ALWAYS_SETTLE_FOR_VACANT = true;
   INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT = true;
-  IS_FAMILY_TREE_STYLE = false;
 
   if (jsonSettings != null){
     Object.keys(jsonSettings).forEach((key) => {
@@ -272,8 +228,7 @@ function loadFromVersion2JsonFile(obj){ //loads from a V2 json file - where the 
         break;
         case "INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT":
           INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT = jsonSettings.INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT;
-        case "IS_FAMILY_TREE_STYLE":
-          IS_FAMILY_TREE_STYLE = jsonSettings.IS_FAMILY_TREE_STYLE;
+        break;
       }
     });
   }
@@ -353,8 +308,8 @@ function getAllAsJSON(){
                             USE_COLOURED_CONNECTION_TEXTS:USE_COLOURED_CONNECTION_TEXTS,
                             ALWAYS_SETTLE_FOR_VACANT:ALWAYS_SETTLE_FOR_VACANT,
                             DRAW_ANGLED_NAME_TEXT:DRAW_ANGLED_NAME_TEXT,
-                            INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT:INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT,
-                            IS_FAMILY_TREE_STYLE:IS_FAMILY_TREE_STYLE};
+                            INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT:INCLUDE_RELATION_TYPE_IN_VERBOSE_OUTPUT
+                          };
 
   return JSON.stringify(output);
 }
@@ -365,189 +320,52 @@ function updateHTML(){
     app.appendChild(currentFocalPerson.getAnchorTag());
     app.appendChild(currentFocalPerson.getRelationsDiv());
     personConnectionDropdownChanged(false);
-    globalCanvasRedraw();
+    document.getElementById("svg-holder").innerHTML = "";
+    let svg = makeSVG(dataInD3Format);
+    console.log(svg);
+    document.getElementById("svg-holder").appendChild(svg);
 }
 
-function globalCanvasRedraw(){
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  people.forEach((person) => {
-    person.drawToCanvas();
-  });
-}
-
-function recalculateTreeDiagram(){
- 
-  let peopleWebContexts = [];
-
-  let slotsAtEachFamilyRelativeLevel = {};
-
-  let MONITOR_NODES_THAT_COULD_NOT_BE_REACHED = false;
-
-  let couldNotBeReached = [];
-
-  let uniqueRelativeFamilyLevels = [];
-
-  let maxLevel = 0;
-
-  people.forEach((otherPerson) => {
-    otherPerson.unhighlightRelations();
-
-    let degreesOfSepAnalysis = currentFocalPerson.getDegreesOfSeparationFrom(otherPerson, spiderDiagramAvoidPeople, false, false);
-
-    let level = degreesOfSepAnalysis.degrees;
-
-	  if (level == undefined){
-      otherPerson.positionOnSpiderDiagram = [0,0]
-      otherPerson.updateConnectionLinePositions(null);
-      if (MONITOR_NODES_THAT_COULD_NOT_BE_REACHED){
-        couldNotBeReached.push(otherPerson);
-      }
-      return;
-	  }
-
-    if (spiderDiagramAvoidPeople.includes(otherPerson)){
-      return;
-    }
-    		
-    if (level > maxLevel){
-      maxLevel = level;
-    }
-
-    console.log(otherPerson)
-    console.log(degreesOfSepAnalysis.relativeFamilyLevel)
-    if (!uniqueRelativeFamilyLevels.includes(degreesOfSepAnalysis.relativeFamilyLevel)){
-      uniqueRelativeFamilyLevels.push(degreesOfSepAnalysis.relativeFamilyLevel)
-    }
-
-    if (Object.keys(slotsAtEachFamilyRelativeLevel).includes(degreesOfSepAnalysis.relativeFamilyLevel+"")){
-      slotsAtEachFamilyRelativeLevel[degreesOfSepAnalysis.relativeFamilyLevel+""] = slotsAtEachFamilyRelativeLevel[degreesOfSepAnalysis.relativeFamilyLevel+""] + 1;
-    } else {
-      slotsAtEachFamilyRelativeLevel[degreesOfSepAnalysis.relativeFamilyLevel+""] = 1;
-    }
-    
-	let otherPersonAndWebContext = {p:otherPerson, degreesFromFocalPerson: level, isAddedToWeb:false, prevPersonInWeb:null,
-                                  hasBeenEvaluated:false, relationLevelRelativeToFocalPerson:degreesOfSepAnalysis.relativeFamilyLevel};
-	peopleWebContexts.push(otherPersonAndWebContext);
-  });    
-
-  uniqueRelativeFamilyLevels.sort((a,b) => {Math.abs(a) - Math.abs(b)})
-
-  if (MONITOR_NODES_THAT_COULD_NOT_BE_REACHED){
-    let couldNotBeReachedString = "The following nodes could not be reached from the chosen centrepoint: ";
-
-    couldNotBeReached.forEach((item) => {
-      couldNotBeReachedString += item.name + ", ";
-    })
-    console.log(couldNotBeReachedString)
-  }
-
-  console.log(uniqueRelativeFamilyLevels)
-
-  let slotArraysForEachRelativeLevel = {}
-
-  uniqueRelativeFamilyLevels.forEach(RFL => {
-    let slots = [];
-
-    let slotCount = slotsAtEachFamilyRelativeLevel[RFL];
-
-    for (let i = 0; i < slotCount; i++){
-        let xOffsetFromFocalPerson = RFL * 200 * (i-(slotCount/2));
-        let yOffsetFromFocalPerson = -RFL * 200;
-        console.log(yOffsetFromFocalPerson)
-        let newSlot = {
-          slotNumber: i,
-          position: [canvas.width/2 + xOffsetFromFocalPerson, canvas.height/2 + yOffsetFromFocalPerson],
-          occupant: null,
-          distOfOccupantToPrev: 999999999
-          };
-        slots.push(newSlot);
-    }
-    slotArraysForEachRelativeLevel[RFL] = slots;
-  });
-
-  for (let L = 0; L < maxLevel; L++) {
-
-    let prevOfLastProcessedPersonWebContext = null;
-    
-    for (let i = 0; i < peopleWebContexts.length; i++){
-      let personWebContext = peopleWebContexts[i];
-        
-      if (personWebContext.degreesFromFocalPerson == L){        
-        if (personWebContext.prevPersonInWeb != null && prevOfLastProcessedPersonWebContext != personWebContext.prevPersonInWeb){ //try and process children of a common parent node in sequence
-          let cont = true;
-          //console.log("considering an array position swap!")
-          peopleWebContexts.forEach((potentialPersonWebContext, potentialIndex) => {
-            if (potentialPersonWebContext.degreesFromFocalPerson == L && !potentialPersonWebContext.hasBeenEvaluated){
-              if (!cont){
-                return;
-              }
-              if (prevOfLastProcessedPersonWebContext != null && potentialPersonWebContext.prevPersonInWeb == prevOfLastProcessedPersonWebContext){
-                let temp = personWebContext;
-                peopleWebContexts[i] = potentialPersonWebContext;
-                personWebContext = potentialPersonWebContext;
-                peopleWebContexts[potentialIndex] = temp;
-                //console.log("Performing a swap in array position between "+temp.p.name+" and "+personWebContext.p.name+" to make sure that children of the same parent are processed together!")
-                cont = false;
-              }
-            }
-          });
-        }
-
-        if (personWebContext.prevPersonInWeb == null){ //then this is the root person and they get special treatment!
-          personWebContext.p.positionOnSpiderDiagram = [canvas.width/2, canvas.height/2];
-        }
-
-        personWebContext.isAddedToWeb = true;
-
-        personWebContext.p.relations.forEach((relation) => {
-          if (spiderDiagramAvoidRelationText.includes(relation.description)){
-            return;
-          }
-          for (let i = 0; i < peopleWebContexts.length; i++){
-            let otherPersonWebCtx = peopleWebContexts[i];
-            if (otherPersonWebCtx.p == relation.getOtherPerson()){ //if the other person in this relationship is already added to the web, don't add them again. The return returns the forEach iteration in the relations array, not the wider function.
-              if (otherPersonWebCtx.isAddedToWeb){
-                return;
-              } else {
-                otherPersonWebCtx.prevPersonInWeb = personWebContext.p;
-                otherPersonWebCtx.isAddedToWeb = true;
-              }
-            }
-          }
-        });
-
-        findBestSlot(personWebContext, slotArraysForEachRelativeLevel[personWebContext.relationLevelRelativeToFocalPerson], personWebContext.relationLevelRelativeToFocalPerson, slotsAtEachFamilyRelativeLevel);
-        prevOfLastProcessedPersonWebContext = personWebContext.prevPersonInWeb;
-        personWebContext.hasBeenEvaluated = true;
-        }        
-    }
-  }
+function makePlainD3Node(degreesFromFocalPerson, prevPersonInWeb){
+  return ({
+    "p":null,
+    "level": degreesFromFocalPerson,
+    "children":[],
+    "prevPersonInWeb": prevPersonInWeb,
+    "isAccountedForInChildrenSomewhere": false
+  })
 }
 
 function recalculateSpiderDiagram(){
 
-  let peopleWebContexts = [];
+  dataInD3Format = makePlainD3Node(0, null);
 
   let maxLevel = -1;
-  let slotsAtEachLevel = {};
 
   let MONITOR_NODES_THAT_COULD_NOT_BE_REACHED = false;
-
-  let couldNotBeReached = [];
 
   people.forEach((otherPerson) => {
     otherPerson.unhighlightRelations();
 
     let level = currentFocalPerson.getDegreesOfSeparationFrom(otherPerson, spiderDiagramAvoidPeople, false, true).degrees;
 
-	  if (level == undefined){
-      otherPerson.positionOnSpiderDiagram = [0,0]
-      otherPerson.updateConnectionLinePositions(null);
+	  if (level == undefined){ 
       if (MONITOR_NODES_THAT_COULD_NOT_BE_REACHED){
         couldNotBeReached.push(otherPerson);
       }
+      otherPerson.d3Node = makePlainD3Node(-1, null)
       return;
 	  }
+
+    if (level == 0){ //root person
+      otherPerson.d3Node = dataInD3Format;
+      otherPerson.d3Node.p = otherPerson;
+    } else {
+      otherPerson.d3Node = makePlainD3Node(level, null);
+      otherPerson.d3Node.p = otherPerson;
+    }
+    
+    otherPerson.isAddedToWeb = false;
 
     if (spiderDiagramAvoidPeople.includes(otherPerson)){
       return;
@@ -556,15 +374,6 @@ function recalculateSpiderDiagram(){
     if (level > maxLevel){
       maxLevel = level;
     }
-
-    if (Object.keys(slotsAtEachLevel).includes(level+"")){
-      slotsAtEachLevel[level+""] = slotsAtEachLevel[level+""] + 1;
-    } else {
-      slotsAtEachLevel[level+""] = 1;
-    }
-    
-	let otherPersonAndWebContext = {p:otherPerson, degreesFromFocalPerson: level, isAddedToWeb:false, prevPersonInWeb:null, hasBeenEvaluated:false};
-	peopleWebContexts.push(otherPersonAndWebContext);
   });    
 
   if (MONITOR_NODES_THAT_COULD_NOT_BE_REACHED){
@@ -577,139 +386,43 @@ function recalculateSpiderDiagram(){
   }
 
   for (let L = 0; L <= maxLevel; L++){
-    let slots = []; //'slots' are a bunch of slots in a ring around the focal person, at the required distance, that can be filled up with person nodes. This means that people will never crash into each other!
 
-    let slotCount = getNumberOfSlotsAtLevel(slotsAtEachLevel, L);
-    let spider_diagram_arm_length = L * 400;
-  
-    let angle_diff = 360 / slotCount;
+    people.forEach((person) => {      
 
-    for (let i = 0; i < slotCount; i++){
-        let angle_in_rads = deg2rad(90 + (angle_diff * i));
-        let armXLength = (Math.sin(angle_in_rads) * spider_diagram_arm_length);
-        let armYLength = (Math.cos(angle_in_rads) * spider_diagram_arm_length);
-        let newSlot = {
-          slotNumber: i,
-          position: [currentFocalPerson.positionOnSpiderDiagram[0] + armXLength, currentFocalPerson.positionOnSpiderDiagram[1] + armYLength],
-          occupant: null,
-          distOfOccupantToPrev: 999999999
-          };
-        slots.push(newSlot);
-    }
-
-    let prevOfLastProcessedPersonWebContext = null;
-    
-    for (let i = 0; i < peopleWebContexts.length; i++){
-      let personWebContext = peopleWebContexts[i];
-
-      if (personWebContext.degreesFromFocalPerson == L){        
-        if (personWebContext.prevPersonInWeb != null && prevOfLastProcessedPersonWebContext != personWebContext.prevPersonInWeb){ //try and process children of a common parent node in sequence
-          let cont = true;
-          //console.log("considering an array position swap!")
-          peopleWebContexts.forEach((potentialPersonWebContext, potentialIndex) => {
-            if (potentialPersonWebContext.degreesFromFocalPerson == L && !potentialPersonWebContext.hasBeenEvaluated){
-              if (!cont){
-                return;
-              }
-              if (prevOfLastProcessedPersonWebContext != null && potentialPersonWebContext.prevPersonInWeb == prevOfLastProcessedPersonWebContext){
-                let temp = personWebContext;
-                peopleWebContexts[i] = potentialPersonWebContext;
-                personWebContext = potentialPersonWebContext;
-                peopleWebContexts[potentialIndex] = temp;
-                //console.log("Performing a swap in array position between "+temp.p.name+" and "+personWebContext.p.name+" to make sure that children of the same parent are processed together!")
-                cont = false;
-              }
-            }
-          });
-        }
-
-        if (personWebContext.prevPersonInWeb == null){ //then this is the root person and they get special treatment!
-          personWebContext.p.positionOnSpiderDiagram = [canvas.width/2, canvas.height/2];
-        }
-
-        personWebContext.isAddedToWeb = true;
-
-        personWebContext.p.relations.forEach((relation) => {
+      if (person.d3Node.level == L){
+        person.relations.forEach((relation) => {
           if (spiderDiagramAvoidRelationText.includes(relation.description)){
             return;
           }
-          for (let i = 0; i < peopleWebContexts.length; i++){
-            let otherPersonWebCtx = peopleWebContexts[i];
-            if (otherPersonWebCtx.p == relation.getOtherPerson()){ //if the other person in this relationship is already added to the web, don't add them again. The return returns the forEach iteration in the relations array, not the wider function.
-              if (otherPersonWebCtx.isAddedToWeb){
+          for (let i = 0; i < people.length; i++){
+            let otherPerson = people[i];
+            if (otherPerson == person){ //can't link to yourself! IT would create a cyclical reference
+              continue;
+            }
+            if (otherPerson == relation.getOtherPerson()){ //if the other person in this relationship is already added to the web, don't add them again. The return returns the forEach iteration in the relations array, not the wider function.
+              if (otherPerson.isAddedToWeb){
                 return;
               } else {
-                otherPersonWebCtx.prevPersonInWeb = personWebContext.p;
-                otherPersonWebCtx.isAddedToWeb = true;
+                if (!otherPerson.d3Node.isAccountedForInChildrenSomewhere){
+                  otherPerson.d3Node.isAccountedForInChildrenSomewhere = true;
+                  person.d3Node.children.push(otherPerson.d3Node) //but this doesn't count as adding them to the web; they'll be processed when their turn comes
+                }
+                otherPerson.d3Node.prevPersonInWeb = person.d3Node;
               }
             }
           }
+          person.isAddedToWeb = true;
         });
-
-        findBestSlot(personWebContext, slots, L, slotsAtEachLevel);
-        prevOfLastProcessedPersonWebContext = personWebContext.prevPersonInWeb;
-        personWebContext.hasBeenEvaluated = true;
-        }        
-    }
-  }
-}
-
-function getNumberOfSlotsAtLevel(slotsAtEachLevel, L){
-  return Object.keys(slotsAtEachLevel).includes((L)+"") ? (slotsAtEachLevel[L] * (L >= 2 ? Math.round(L*1.5) : 1)) : 1
-}
-
-function getSlotNumberAsProportion(slot,L,slotsAtEachLevel){
-  return slot.slotNumber / getNumberOfSlotsAtLevel(slotsAtEachLevel, L);
-}
-
-function findBestSlot(personWebContext,slots, L, slotsAtEachLevel){
-  //find the next closest available slot in this level's ring, and put this person node at the location of that slot
-
-  let chosenSlot = slots[0];
-
-  if (personWebContext.prevPersonInWeb != null){
-    let smallestDiff = 9999999999;
-    let closestVacantSlot = null;
-
-    slots.forEach((slot)=>{            
-        personWebContext.p.positionOnSpiderDiagram = slot.position; //we temporarily move our candidate to the occupied slot so that we can check the distance etc
-        let thisProportion = getSlotNumberAsProportion(slot,L,slotsAtEachLevel);
-        let prevProportion = getSlotNumberAsProportion(personWebContext.prevPersonInWeb.slot,parseInt(L)-1,slotsAtEachLevel);
-        let diff = Math.abs(thisProportion - prevProportion);
-        if (diff > 0.5){
-          diff = Math.abs(diff-1);
-        }
-        if (slot.occupant == null && diff <= smallestDiff){ //set the closest dist for a slot that isn't occupied (a good enough slot if the occupant of our preferred slot turns out to have a better claim to it)
-          smallestDiff = diff;
-          closestVacantSlot = slot;
-        }
+      }        
     });
-    personWebContext.p.positionOnSpiderDiagram = closestVacantSlot.position;
-    closestVacantSlot.occupant = personWebContext;
-    chosenSlot = closestVacantSlot;
   }
-  personWebContext.p.updateConnectionLinePositions(personWebContext.prevPersonInWeb,chosenSlot);
-}
 
-function getAngleDifferenceToPrev(personWebContext){
-  if (personWebContext.prevPersonInWeb == null){
-    return 0;
-  }
-  if (personWebContext.prevPersonInWeb.connectionTextAngle == null){
-    return Math.abs(personWebContext.p.connectionTextAngle);
-  }
-  else {
-    personWebContext.p.updateConnectionLinePositions(personWebContext.prevPersonInWeb,"dontUpdate");
-    return Math.abs(personWebContext.p.connectionTextAngle - personWebContext.prevPersonInWeb.connectionTextAngle);
-  }
-}
+  people.forEach(person => { //sanitise the json format to avoid circular references (reduce everything to standard data rather than objects)
+    person.d3Node.prevPersonInWeb = "";
+    person.d3Node.p = person.d3Node.p == null ? null : person.d3Node.p.name
+  });
 
-function getDistanceBetween(a,b){
-  return Math.hypot(a[0] - b[0], a[1] - b[1])
-}
-
-function deg2rad(deg){
-  return (deg * Math.PI) / 180.0;
+  console.log(dataInD3Format)
 }
 
 function getPerson(name){
@@ -823,64 +536,6 @@ function getNextID(){
 function addPerson(name){
   people.push(new Person(name));
 }  
-
-function drawTextToCanvas(ctx, position, angle, text){
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.save();
-  ctx.translate(canvasPanX + position[0], canvasPanY + position[1]);
-
-  if (angle >= Math.PI || angle < 0){
-    ctx.rotate(-angle - 1.5708);
-  } else {
-    ctx.rotate(-angle + 1.5708);
-  }
-
-  if (text != null){
-    ctx.fillText(text,0,0);  
-  }
-    
-  ctx.restore(); 
-}
-
-function takeScreenshot(){
-  let maxExtentX = -999999999;
-  let maxExtentY = -999999999;
-  let minExtentX = 999999999;
-  let minExtentY = 999999999;
-
-  people.forEach((person) => {
-    let x = person.positionOnSpiderDiagram[0];
-    let y = person.positionOnSpiderDiagram[1]
-    if (x < minExtentX){
-      minExtentX = x;
-    }
-    if (x > maxExtentX){
-      maxExtentX = x;    
-    }
-    if (y < minExtentY){
-      minExtentY = y;
-    }
-    if (y > maxExtentY){
-      maxExtentY = y;
-    }
-  });
-
-  let width = maxExtentX - minExtentX;
-  let height = maxExtentY - minExtentY;
-
-  ctx.canvas.width = width*1.25;
-  ctx.canvas.height = height*1.25;
-
-  canvasPanX = ctx.canvas.width/10;
-  canvasPanY = ctx.canvas.height/4;
-
-  updateHTML();
-
-  downloadImageAnchorTag.href = ctx.canvas.toDataURL();
-  downloadImageAnchorTag.target = "_blank";
-  downloadImageAnchorTag.click();
-}
 
 class Role {
   constructor(name){
@@ -1004,90 +659,6 @@ class Person {
     return text;
   }
 
-  updateConnectionLinePositions(prevPerson,chosenSlot){
-    let armXLength = 0;
-    let armYLength = 0;
-
-    if (chosenSlot != "dontUpdate"){
-      this.slot = chosenSlot;  
-    }
-    
-    if (prevPerson != null){
-      armXLength = this.positionOnSpiderDiagram[0] - prevPerson.positionOnSpiderDiagram[0]
-      armYLength = this.positionOnSpiderDiagram[1] - prevPerson.positionOnSpiderDiagram[1];
-    
-      this.connectionLineStart = [this.positionOnSpiderDiagram[0] - (armXLength/15),
-                                  this.positionOnSpiderDiagram[1] - (armYLength/15)];
-
-      this.connectionLineEnd = [this.positionOnSpiderDiagram[0] - (armXLength*(9/10)),
-                                this.positionOnSpiderDiagram[1] - (armYLength*(9/10))];
-
-      this.connectionTextPosition = [this.positionOnSpiderDiagram[0] - (armXLength / 2),
-                                    this.positionOnSpiderDiagram[1] - (armYLength / 2)];
-
-      if (armXLength < 0){
-        this.connectionTextWithPrevOnVisualWeb = prevPerson.getImmediateRelationshipTextTo(this); //these two have temporarily, or maybe permanently, been made the same, because it flows better now that the web is concentric
-      }  else {
-        this.connectionTextWithPrevOnVisualWeb = prevPerson.getImmediateRelationshipTextTo(this);
-      }                                  
-
-      this.prevInVisualWeb = prevPerson;
-
-      let hypotenuse = getDistanceBetween([0,0],[armXLength,armYLength]);
-      
-      if (armXLength < 0){
-        this.connectionTextAngle = -Math.acos(armYLength/hypotenuse);
-      } else {
-        this.connectionTextAngle = Math.acos(armYLength/hypotenuse);
-      }
-    } else {
-      this.connectionTextWithPrevOnVisualWeb = null;
-      this.connectionTextAngle = Math.PI/2;
-    }
-  }
-
-  drawToCanvas(){
-    // Draw circle background:
-    ctx.beginPath();
-    ctx.arc(canvasPanX + this.positionOnSpiderDiagram[0], canvasPanY + this.positionOnSpiderDiagram[1], 50, 0, 2 * Math.PI);
-    ctx.fillStyle = "black";
-    //ctx.stroke(); 
-    //ctx.fill();
-   
-    // Draw name text:
-    ctx.font = "20px Arial";
-    ctx.fillStyle = "white";
-
-    drawTextToCanvas(ctx, this.positionOnSpiderDiagram, DRAW_ANGLED_NAME_TEXT ? this.connectionTextAngle : Math.PI/2, this.name);
-
-    if (this.connectionTextWithPrevOnVisualWeb != null){
-      // Draw connection line with previous node:
-      ctx.beginPath(); 
-
-      if (this.prevInVisualWeb != null && this.getImmediateRelationshipTo(this.prevInVisualWeb).highlighted){
-        ctx.strokeStyle = "rgba(255,255,0,0.4)"; 
-        ctx.lineWidth = 3; 
-      } else {
-        ctx.strokeStyle = "rgba(128,128,128,0.3)"; 
-        ctx.lineWidth = 1; 
-      }
-
-      ctx.moveTo(canvasPanX+this.connectionLineStart[0], canvasPanY+this.connectionLineStart[1]);
-      ctx.lineTo(canvasPanX+this.connectionLineEnd[0], canvasPanY+this.connectionLineEnd[1]);
-      ctx.stroke();
-
-      // Draw connection description over connection line:
-   
-	  if (USE_COLOURED_CONNECTION_TEXTS && Object.keys(colouredConnectionTexts).includes(this.connectionTextWithPrevOnVisualWeb.toLowerCase())){
-		  ctx.fillStyle = colouredConnectionTexts[this.connectionTextWithPrevOnVisualWeb.toLowerCase()];
-	  } else {
-		  ctx.fillStyle = "rgba(255,255,255,0.75)";  
-	  }    
-      ctx.font = "12px Arial";
-      drawTextToCanvas(ctx, this.connectionTextPosition, this.connectionTextAngle, this.connectionTextWithPrevOnVisualWeb)
-    }
-  }
-
   getAsObjectForJSON(){
     let JSONfriendlyRelations = [];
     for (let i = 0; i < this.relations.length; i++){
@@ -1097,10 +668,6 @@ class Person {
       }
     }
     return {name: this.name, id:this.id, relations:JSONfriendlyRelations, myRoles:this.myRoles};
-  }
-
-  getLevelUsingFamilialRelationsRelativeTo(otherPerson, avoidPeople){
-    return this.getDegreesOfSeparationFrom(otherPerson, avoidPeople).relativeFamilyLevel
   }
 
   getDegreesOfSeparationAsStringFrom(targetPerson, avoidPeople){
@@ -1319,6 +886,102 @@ function makePersonOptionFor(person){
   newOption.innerHTML = person.name;
   return newOption;
 }
+
+function drag(simulation) {
+  
+  function dragstarted(event, d) {
+    if (!event.active) simulation.alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+  }
+  
+  function dragged(event, d) {
+    d.fx = event.x;
+    d.fy = event.y;
+  }
+  
+  function dragended(event, d) {
+    if (!event.active) simulation.alphaTarget(0);
+    d.fx = null;
+    d.fy = null;
+  }
+  
+  return d3.drag()
+      .on("start", dragstarted)
+      .on("drag", dragged)
+      .on("end", dragended);
+}
+function makeSVG(data) {
+
+  // Specify the chart’s dimensions.
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+
+  // Compute the graph and start the force simulation.
+  const root = d3.hierarchy(data);
+  const links = root.links();
+  const nodes = root.descendants();
+
+  const simulation = d3.forceSimulation(nodes)
+      .force("link", d3.forceLink(links).id(d => d.id).distance(10).strength(1))
+      .force("charge", d3.forceManyBody().strength(-2000))
+      .force("x", d3.forceX())
+      .force("y", d3.forceY());
+
+  // Create the container SVG.
+  const svg = d3.create("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .attr("viewBox", [-width / 2, -height / 2, width, height])
+      .attr("style", "max-width: 100%; height: auto;");
+
+  // Append links.
+  const link = svg.append("g")
+      .attr("stroke", "#999")
+      .attr("stroke-opacity", 0.6)
+    .selectAll("line")
+    .data(links)
+    .join("line");
+
+  // Append nodes.
+  const node = svg.append("g")
+      .attr("fill", "#000")
+      .attr("stroke", "#000")
+      .attr("stroke-width", 1.5)
+    .selectAll("g")
+    .data(nodes)
+    .join("g")
+    .call(drag(simulation));
+
+  node.append("title")
+      .text(d => d.data.p);
+
+  node.append("circle")
+    .attr("fill", d => d.children ? null : "#000")
+    .attr("stroke", d => d.children ? null : "#000")
+    .attr("r", 7)
+
+  node.append("text")
+      .attr("font-size",16)
+      .attr("fill", "white")
+      .attr("stroke","none")
+      .attr("text-anchor","middle")
+      .text(d => d.data.p);
+
+  simulation.on("tick", () => {
+    link
+        .attr("x1", d => d.source.x)
+        .attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x)
+        .attr("y2", d => d.target.y);
+
+    node
+        .attr("transform", function(d){return "translate("+d.x+" "+d.y+")"})
+  });
+
+  return svg.node();
+}
+
 
 function addTempMapViaCode(){
   reset();
